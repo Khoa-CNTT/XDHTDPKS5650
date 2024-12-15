@@ -35,9 +35,8 @@ class BlogController extends Controller
         $data = Blog::find($id);
         return response()->json([$data]);
     }
-    public function update(Request $request){
+    public function update(BlogRequest $request,string $id){
         $data = $request->all();
-
         if(Blog::find($request->id)->update($data))
         {
             return response()->json([
