@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name'=>'required',
             'password'=>'required',
-            'avatar'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            //'avatar'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
     public function messages()

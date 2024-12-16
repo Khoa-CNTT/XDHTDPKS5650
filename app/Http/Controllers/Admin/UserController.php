@@ -107,20 +107,20 @@ class UserController extends Controller
         $user = User::findOrFail($userId);
 
         $data = $request->all();
-        $file = $request->avatar;
+        //$file = $request->avatar;
 
-        if(!empty($file)){
-            $data['avatar'] = $file->getClientOriginalName();
-        }
+        // if(!empty($file)){
+        //     $data['avatar'] = $file->getClientOriginalName();
+        // }
         if($data['password']!='password'){
             $data['password'] = bcrypt($data['password']);
         }else{
             $data['password'] = $user->password;
         }
         if($user->update($data)){
-            if(!empty($file)){
-                $file->move('upload/user/avatar',$file->getClientOriginalName());
-            }
+            // if(!empty($file)){
+            //     $file->move('upload/user/avatar',$file->getClientOriginalName());
+            // }
             return response()->json(["Update profile success."]);
         }else{
             return response()->json(["Update profile error."]);
