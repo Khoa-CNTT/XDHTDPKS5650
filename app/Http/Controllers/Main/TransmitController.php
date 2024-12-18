@@ -8,6 +8,7 @@ use App\Models\RoomType;
 use App\Models\Room;
 use App\Models\Service;
 use App\Models\Product;
+use App\Models\Blog;
 
 class TransmitController extends Controller
 {
@@ -25,6 +26,10 @@ class TransmitController extends Controller
     }
     public function listProduct(){
         $data = Product::where('status', 1)->get();
+        return response()->json($data);
+    }
+    public function listBlog(){
+        $data = Blog::where('status', 1)->get();
         return response()->json($data);
     }
 }

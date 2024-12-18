@@ -88,6 +88,7 @@ Route::get('/list-room', [TransmitController::class, 'listRoom']);
 Route::get('/detail-room/{id}',[TransmitController::class,'detailRoom']);
 Route::get('/list-service',[TransmitController::class,'listService']);
 Route::get('/list-product',[TransmitController::class,'listProduct']);
+Route::get('/list-blog',[TransmitController::class,'listBlog']);
 
 // Main sanctum
 Route::middleware('auth:sanctum')->group(function () {
