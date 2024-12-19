@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'email'=>'required|email|unique:users,email',
             'phone'=>'nullable|min:10|max:10',
             'password'=>'required|min:8|max:30',
-            'avatar'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            //'avatar'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
     public function messages()
@@ -37,8 +37,8 @@ class RegisterRequest extends FormRequest
             'unique'=>':attribute đã tồn tại',
             'min'=>':attribute phải nhiều hơn 8 ký tự',
             'max'=>':attribute phải ít hơn 30 ký tự',
-            'image'=>':attribute không phải là ảnh',
-            'mimes'=>':attribute phải định dạng jpeg,png,jpg,gif',
+            // 'image'=>':attribute không phải là ảnh',
+            // 'mimes'=>':attribute phải định dạng jpeg,png,jpg,gif',
             'name.required' => 'Tên không được để trống',
             'email.required' => 'Email không được để trống',
             'email.email' => 'Email sai định dạng',
@@ -48,9 +48,9 @@ class RegisterRequest extends FormRequest
             'password.max' => 'Mật khẩu phải ít hơn 30 ký tự',
             'phone.min' => 'Số điện thoại phải có 10 ký tự',
             'phone.max' => 'Số điện thoại phải có 10 ký tự',
-            'avatar.image' => 'Avatar không phải là ảnh',
-            'avatar.mimes' => 'Avatar phải có định dạng jpeg, png, jpg, gif',
-            'avatar.max' => 'Avatar quá kích thước',
+            // 'avatar.image' => 'Avatar không phải là ảnh',
+            // 'avatar.mimes' => 'Avatar phải có định dạng jpeg, png, jpg, gif',
+            // 'avatar.max' => 'Avatar quá kích thước',
         ];
     }
 }
