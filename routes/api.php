@@ -16,6 +16,7 @@ use App\Models\Blog;
 
 // Main
 use App\Http\Controllers\Main\CustomerController;
+use App\Http\Controllers\RateController;
 use App\Http\Controllers\RentalDetailController;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -79,6 +80,14 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
     // Invoices
     Route::get('/list-invoices', [InvoicesController::class, 'index']);
     Route::get('/change-invoices', [InvoicesController::class, 'change']);
+    //Rate
+    Route::get('/list-rate', [RateController::class, 'index']);
+    Route::post('/create-rate', [RateController::class, 'store']);
+    Route::get('/edit-rate/{id}', [RateController::class, 'edit']);
+    Route::put('/edit-blog/{id}',[RateController::class,'update']);
+    Route::get('/delete-rate', [RateController::class, 'destroy']);
+    //Cmt
+
 });
 
 Route::post('/register', [CustomerController::class, 'register']);
