@@ -83,8 +83,6 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
     //Rate
     Route::get('/list-rate', [RateController::class, 'index']);
     Route::post('/create-rate', [RateController::class, 'store']);
-    Route::get('/edit-rate/{id}', [RateController::class, 'edit']);
-    Route::put('/edit-blog/{id}',[RateController::class,'update']);
     Route::get('/delete-rate', [RateController::class, 'destroy']);
     //Cmt
 

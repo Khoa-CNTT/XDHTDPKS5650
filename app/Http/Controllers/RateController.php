@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoices;
 use App\Models\Rate;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Auth;
 
 class RateController extends Controller
 {
@@ -14,32 +16,18 @@ class RateController extends Controller
         ]);
     }
     public function store(Request $request){
-        $data = request()->all();
+        $data       = request()->all();
+        $user       = $request->user();
+        $hasBooked  = Invoices::where('id_user', $user->id)->exists();
+        if (!$hasBooked) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'You must book a room first!']);
+        }
         if(Rate::create($data)){
             return response()->json([
                 'status'    => true,
                 'message'   => 'Success create!'
-            ]);
-        } else {
-            return response()->json([
-                'status'    =>  false,
-                'message'   =>  'Error'
-            ]);
-        }
-    }
-    public function edit(string $id)
-    {
-        $data = Rate::find($id);
-        return response()->json([$data]);
-    }
-    public function update(Request $request){
-        $data = $request->all();
-
-        if(Rate::find($request->id)->update($data))
-        {
-            return response()->json([
-                'status'    =>  true,
-                'message'   =>  'Update success!'
             ]);
         } else {
             return response()->json([
