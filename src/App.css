@@ -27,6 +27,240 @@
 .App-link {
   color: #61dafb;
 }
+/* File: Home.js */
+.swiper {
+  width: 500%; /* Thu nhỏ chiều rộng */
+  height: 500px; /* Giảm chiều cao */
+  max-width: 1225px; /* Giới hạn chiều rộng tối đa */
+}
+
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.SwiperSlide img {
+  width: 500%; /* Giảm kích thước ảnh */
+  height: 500px; /* Giảm chiều cao */ 
+  object-fit: contain; /* Giữ tỷ lệ ảnh */
+}
+
+
+/** File SignUp */
+.signup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.signup__container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.signup__container h1 {
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.signup__container h5 {
+  text-align: left;
+  margin: 10px 0 5px;
+  color: #555555;
+}
+
+.input-signup-username,
+.input-signup-password {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.signup__signInButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #307bf4;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.signup__signInButton:hover {
+  background-color: #0056c1;
+}
+
+.signup__registerButton {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.signup__registerButton:hover {
+  color: #0056c1;
+}
+
+/** File Login */
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.login__container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login__container h1 {
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.login__container h5 {
+  text-align: left;
+  margin: 10px 0 5px;
+  color: #555555;
+}
+
+.input-login-username,
+.input-login-password {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.login__signInButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #307bf4;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login__signInButton:hover {
+  background-color: #0056c1;
+}
+
+.login__registerButton {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login__registerButton:hover {
+  color: #0056c1;
+}
+/* .gdlr-page-title-wrapper {
+  background-image: url('/bgrTitle.png');
+  background-size: cover; 
+  background-position: center; 
+  padding: 50px 0; 
+  color: white;  
+} */
+body {
+  font-family: Arial, sans-serif;
+  background-color:black; /* Màu nền tổng thể */
+}
+
+.gdlr-reservation-bar {
+  background-color:black; /* Màu nền cho form */
+  border-radius: 8px; /* Bo góc */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+  padding: 20px; /* Padding cho form */
+  max-width: 600px; /* Chiều rộng tối đa */
+  margin: auto; /* Căn giữa form */
+}
+
+.gdlr-reservation-bar-title {
+  font-size: 24px; /* Kích thước chữ tiêu đề */
+  text-align: center;
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+.gdlr-reservation-bar-room-form {
+  margin-bottom: 20px; /* Khoảng cách giữa các phần */
+}
+
+.gdlr-reservation-room {
+  border: 1px solid #ccc; /* Viền cho phòng */
+  padding: 15px; /* Padding cho nội dung phòng */
+  border-radius: 4px; /* Bo góc cho phòng */
+  margin-bottom: 10px; /* Khoảng cách giữa các phòng */
+}
+
+.gdlr-reservation-field {
+  flex: 1; /* Các trường chiếm không gian bằng nhau */
+  margin-right: 10px; /* Khoảng cách giữa các trường */
+}
+
+.gdlr-reservation-field-title {
+  font-weight: bold; /* Chữ đậm cho tiêu đề trường */
+}
+
+.gdlr-datepicker-wrapper, .gdlr-combobox-wrapper {
+  margin-top: 5px; /* Khoảng cách trên cho các input */
+}
+
+input[type="text"], select {
+  width: 100%; /* Chiều rộng 100% cho các input và select */
+  padding: 10px; /* Padding cho các input */
+  border: 1px solid #ccc; /* Viền cho các input */
+  border-radius: 4px; /* Bo góc */
+}
+
+.gdlr-reservation-submit-button {
+  background-color: #5cb85c; /* Màu nền nút */
+  color: white; /* Màu chữ nút */
+  padding: 10px; /* Padding cho nút */
+  border: none; /* Bỏ viền */
+  border-radius: 4px; /* Bo góc cho nút */
+  cursor: pointer; /* Con trỏ khi di chuột qua */
+  width: 100%; /* Chiều rộng nút */
+}
+
+.gdlr-reservation-submit-button:hover {
+  background-color: #4cae4c; /* Màu nền khi hover */
+}
+.gdlr-reservation-people-amount {
+  display: flex; /* Sử dụng flexbox để căn chỉnh */
+  justify-content: space-between; /* Căn giữa các phần tử */
+  align-items: center; /* Căn chỉnh theo chiều dọc */
+  margin-bottom: 15px; /* Khoảng cách dưới */
+}
+
 
 @keyframes App-logo-spin {
   from {
@@ -35,4 +269,6 @@
   to {
     transform: rotate(360deg);
   }
+  
+  
 }
