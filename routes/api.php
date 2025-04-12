@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +11,16 @@ Route::get('/list-staff',[UserController::class,'staffList']);
 Route::post('/create-staff',[UserController::class,'staffCreate']);
 Route::delete('/delete-staff/{id}',[UserController::class,'destroy']);
 
+// Category product
+Route::get('/list-cate-product',[ProductController::class,'listCate']);
+Route::post('/create-cate-product',[ProductController::class,'storeCate']);
+Route::delete('/delete-cate-product/{id}',[ProductController::class,'destroyCate']);
+// Product
+Route::get('/list-product',[ProductController::class,'index']);
+Route::post('/create-product',[ProductController::class,'store']);
+Route::get('/edit-product/{id}',[ProductController::class,'edit']);
+Route::post('/edit-product/{id}',[ProductController::class,'update']);
+Route::delete('/delete-product/{id}',[ProductController::class,'destroy']);
 
 
 
