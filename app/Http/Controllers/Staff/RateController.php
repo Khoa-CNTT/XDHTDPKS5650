@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Staff;
 
+use App\Http\Controllers\Controller;
 use App\Models\Invoices;
 use App\Models\Rate;
 use Illuminate\Http\Request;
@@ -18,7 +19,9 @@ class RateController extends Controller
     public function store(Request $request){
         $data       = request()->all();
         $user       = $request->user();
-        $hasBooked  = Invoices::where('id_user', $user->id)->exists();
+        $hasBooked  = Invoices::where('id_user', $user->id)
+                                ->get();
+
         if (!$hasBooked) {
             return response()->json([
                 'status'    => false,

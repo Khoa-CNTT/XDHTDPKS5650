@@ -8,6 +8,7 @@ use App\HTTP\Controllers\Admin\UserController;
 use App\HTTP\Controllers\Admin\CateRoomController;
 use App\HTTP\Controllers\Admin\ServiceController;
 use App\HTTP\Controllers\Admin\ProductController;
+use App\Http\Controllers\Staff\CommentController;
 use App\Http\Controllers\InvoicesController;
 // Staff
 use App\Http\Controllers\Staff\BlogController;
@@ -16,8 +17,9 @@ use App\Models\Blog;
 
 // Main
 use App\Http\Controllers\Main\CustomerController;
-use App\Http\Controllers\RateController;
 use App\Http\Controllers\RentalDetailController;
+use App\Http\Controllers\Staff\RateController;
+use Dom\Comment;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -54,6 +56,13 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/edit-product/{id}',[ProductController::class,'edit']);
     Route::post('/edit-product/{id}',[ProductController::class,'update']);
     Route::delete('/delete-product/{id}',[ProductController::class,'destroy']);
+    //Rate
+    Route::get('/list-rate', [RateController::class, 'index']);
+    //Cmt
+    Route::get('/list-comment', [CommentController::class, 'index']);
+    Route::post('/create-comment', [CommentController::class, 'store']);
+    Route::post('/edit-comment/{id}', [CommentController::class, 'update']);
+    Route::delete('/delete-comment/{id}', [CommentController::class, 'destroy']);
 });
 
 // Staff
@@ -74,7 +83,7 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
     Route::post('/create-blog',[BlogController::class,'store']);
     Route::get('/edit-blog/{id}',[BlogController::class,'edit']);
     Route::put('/edit-blog/{id}',[BlogController::class,'update']);
-    Route::delete('/delete-blog',[BlogController::class,'destroy']);
+    Route::delete('/delete-blog/{id}',[BlogController::class,'destroy']);
     // Rental room detail
     Route::post('/create-rental-detail', [RentalDetailController::class, 'store']);
     // Invoices
@@ -82,10 +91,10 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
     Route::get('/change-invoices', [InvoicesController::class, 'change']);
     //Rate
     Route::get('/list-rate', [RateController::class, 'index']);
-    Route::post('/create-rate', [RateController::class, 'store']);
-    Route::get('/delete-rate', [RateController::class, 'destroy']);
     //Cmt
-
+    Route::get('/list-comment', [CommentController::class, 'index']);
+    Route::post('/create-comment', [CommentController::class, 'store']);
+    Route::delete('/delete-comment/{id}', [CommentController::class, 'destroy']);
 });
 
 Route::post('/register', [CustomerController::class, 'register']);
@@ -103,4 +112,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout',[CustomerController::class,'logout']);
     Route::post('/choose-room',[CustomerController::class,'chooseRoom']);
     Route::post('/booking',[CustomerController::class,'booking']);
+    Route::post('/add-to-cart', [CustomerController::class, 'AddToCart']);
+    Route::post('/order-product', [CustomerController::class, 'order']);
+    //Rate
+    Route::post('/create-rate', [RateController::class, 'store']);
+    Route::delete('/delete-rate/{id}', [RateController::class, 'destroy']);
 });
