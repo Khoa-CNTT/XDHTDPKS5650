@@ -12,11 +12,11 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        \DB::table("users")->insert([
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => \Hash::make('123456789'),
-            'level' => '1'
-        ]);
+        // \DB::table("users")->insert([
+        //     'name' => 'admin',
+        //     'email' => 'admin@gmail.com',
+        //     'password' => \Hash::make('123456789'),
+        //     'level' => '1'
+        // ]);
     }
 }

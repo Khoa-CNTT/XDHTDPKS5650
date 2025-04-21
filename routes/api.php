@@ -105,6 +105,8 @@ Route::get('/list-room', [RoomController::class, 'getData']);
 Route::get('/edit-room/{id}',[RoomController::class,'edit']);
 Route::get('/list-service',[ServiceController::class,'index']);
 Route::get('/list-product',[ProductController::class,'index']);
+Route::get('/list-blog',[BlogController::class,'index']);
+
 
 
 // Main sanctum
