@@ -13,11 +13,17 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->references('id')->on('users')->onDelete('cascade'); // Người dùng comment
-            $table->foreignId('id_staff')->references('id')->on('staffs')->onDelete('cascade'); // Nhân viên comment
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_parent')->nullable(); // hỗ trợ comment gốc và reply
+
             $table->text('text');
-            $table->foreignId('id_parent')->nullable()->constrained('comments')->onDelete('cascade'); // Bình luận cha
             $table->timestamps();
+
+            // Foreign key: user
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
+
+            // Self-referencing foreign key
+            $table->foreign('id_parent')->references('id')->on('comments')->onDelete('cascade');
         });
     }
 

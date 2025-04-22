@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommentRequest;
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Staff;
 use Illuminate\Http\Request;
@@ -15,31 +16,41 @@ class CommentController extends Controller
      */
     public function index()
     {
-        $data = Comment::all();
-        return response()->json([
-            'rate'  =>  $data
-        ]);
+        $comments = Comment::with(['children.children.children', 'user'])
+            ->where('id_parent', null)
+            ->latest()
+            ->get();
+
+        return CommentResource::collection($comments);
     }
     public function store(CommentRequest $request)
     {
-        $data       = request()->all();
-        if(Comment::create([
-                'user_id' => auth()->id(),
-                'text' => $request->text,
-                'id_parent' => $request->id_parent,
-            ])
-        ) return response()->json(["Create product success."]);
-        else{
-            return response()->json(["Create product error."]);
+        $data = $request->validated();
+
+        // Nếu không có id_parent, set mặc định là null
+        if (empty($data['id_parent'])) {
+            $data['id_parent'] = null;
         }
+
+        $data['id_user'] = Auth()->id(); // Lấy id_user từ Auth
+
+        $comment = Comment::create($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Successfully comment!',
+            'data' => $comment,
+        ], 201);
     }
+
+
+
 
     public function update(CommentRequest $request)
     {
         $data   = $request->all();
 
-        if(Comment::find($request->id)->update($data))
-        {
+        if (Comment::find($request->id)->update($data)) {
             return response()->json([
                 'status'    =>  true,
                 'message'   =>  'Update success!'
@@ -65,8 +76,8 @@ class CommentController extends Controller
             $user = auth()->user();
             // Kiểm tra nếu user là admin/staff hoặc chủ comment
             $isAuthorized = Staff::where('user_id', $user->id)
-                                ->whereIn('level', [3, 4])
-                                ->exists();
+                ->whereIn('level', [3, 4])
+                ->exists();
             if ($user->id != $data->user_id && !$isAuthorized) {
                 return response()->json([
                     'message' => 'You do not have permission to delete this comment'
@@ -82,7 +93,6 @@ class CommentController extends Controller
             return response()->json([
                 'message' => 'Delete error!'
             ], 500);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong!',
@@ -92,11 +102,12 @@ class CommentController extends Controller
     }
 
 
-    public function logout(){
+    public function logout()
+    {
         auth()->user()->tokens()->delete();
         return response()->json(
             [
-                'message'=>'success'
+                'message' => 'success'
             ],
             200
         );

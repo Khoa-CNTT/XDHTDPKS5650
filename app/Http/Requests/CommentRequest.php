@@ -30,7 +30,7 @@ class CommentRequest extends FormRequest
                     }
                 }
             }],
-            'parent_id' => 'nullable|exists:comments,id',
+            'id_parent' => 'nullable|exists:comments,id',
         ];
     }
     public function messages()
