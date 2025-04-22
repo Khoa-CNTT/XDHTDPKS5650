@@ -119,4 +119,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //Rate
     Route::post('/create-rate', [RateController::class, 'store']);
     Route::delete('/delete-rate/{id}', [RateController::class, 'destroy']);
+    //Cmt
+    Route::post('/create-comment', [CommentController::class, 'store']);
 });
