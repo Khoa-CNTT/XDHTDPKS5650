@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Admin
 use App\HTTP\Controllers\Admin\UserController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\RateController;
 use App\Http\Controllers\Staff\CommentController;
 
@@ -27,6 +29,8 @@ Route::delete('/delete-product/{id}',[ProductController::class,'destroy']);
 Route::get('/list-comment', [CommentController::class, 'index']);
 Route::post('/create-comment', [CommentController::class, 'store']);
 Route::delete('/delete-comment/{id}', [CommentController::class, 'destroy']);//điều kiện khi bỏ đăng nhập
+//Rate
+Route::get('list-rate', [RateController::class, 'index']);
 
 
 //Customer
@@ -36,6 +40,17 @@ Route::delete('/delete-rate/{id}', [RateController::class, 'destroy']);
 //Comment
 Route::get('/list-comment', [CommentController::class, 'index']);
 Route::post('/create-comment', [CommentController::class, 'store']);//thiếu cái điều kiện đăng nhập mới cmt được
+//Room
+Route::get('/list-room', [CommentController::class, 'index']);
+//Service
+Route::get('/list-service', [ServiceController::class, 'index']);
+//Product
+Route::get('/list-service', [ServiceController::class, 'index']);
+//Blog
+Route::get('/list-blog', [BlogController::class, 'index']);
+
+
+
 
 
 
