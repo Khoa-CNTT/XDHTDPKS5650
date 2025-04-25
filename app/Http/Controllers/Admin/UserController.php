@@ -10,9 +10,11 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+
     public $successStatus = 200;
     public function index()
     {
@@ -133,17 +135,15 @@ class UserController extends Controller
         if ($this->doLogin2($credentials)) {
             $staff = Auth::guard('staff')->user();
 
-                $token = $staff->createToken('authToken')->plainTextToken;
+            $token = $staff->createToken('authToken')->plainTextToken;
 
-                return response()->json([
-                    'success' => true,
-                    'token' => $token,
-                    'type_token' => 'Bearer',
-                    'auth' => $staff,
-                ], 200);
-            }
-
-
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'type_token' => 'Bearer',
+                'auth' => $staff,
+            ], 200);
+        }
 
         return response()->json([
             'success' => false,
@@ -164,6 +164,16 @@ class UserController extends Controller
     {
         $data = Staff::all();
         return response()->json([$data]);
+    }
+    public function staffUpdate(StaffRequest $request, string $id)
+    {
+        $data = $request->all();
+        $type = Staff::findOrFail($id);
+        if($type->update($data)){
+            return response()->json(["Update success."]);
+        }else{
+            return response()->json(["Update error."]);
+        }
     }
     public function destroy(string $id)
     {

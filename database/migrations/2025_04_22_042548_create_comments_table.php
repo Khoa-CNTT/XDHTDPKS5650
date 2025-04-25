@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_user');
             $table->unsignedBigInteger('id_parent')->nullable(); // hỗ trợ comment gốc và reply
-
+            
             $table->text('text');
             $table->timestamps();
 

@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\BlogRequest;
 use App\Models\Blog;
+use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BlogController extends Controller
 {
     public function index(){
+
         $data = Blog::all();
         return response()->json([
             'blog'  =>  $data

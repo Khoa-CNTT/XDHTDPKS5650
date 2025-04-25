@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RateRequest;
 use App\Models\Invoices;
 use App\Models\Rate;
+use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 // use Illuminate\Support\Facades\Auth;
 
 class RateController extends Controller
 {
+   
     public function index()
     {
         $data = Rate::all();

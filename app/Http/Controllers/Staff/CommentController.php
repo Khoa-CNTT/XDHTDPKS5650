@@ -8,9 +8,12 @@ use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      */
@@ -25,7 +28,7 @@ class CommentController extends Controller
     }
     public function store(CommentRequest $request)
     {
-        $data = $request->validated();
+        $data = $request->all();
 
         // Nếu không có id_parent, set mặc định là null
         if (empty($data['id_parent'])) {
@@ -43,9 +46,6 @@ class CommentController extends Controller
         ], 201);
     }
 
-
-
-
     public function update(CommentRequest $request)
     {
         $data   = $request->all();
@@ -62,46 +62,35 @@ class CommentController extends Controller
             ]);
         }
     }
-    public function delete($id)
+    public function destroy($id)
     {
-        try {
-            $data = Comment::find($id);
-            // Kiểm tra comment có tồn tại không
-            if (!$data) {
-                return response()->json([
-                    'message' => 'Comment not found!'
-                ], 404);
-            }
-            // Lấy user hiện tại
-            $user = auth()->user();
-            // Kiểm tra nếu user là admin/staff hoặc chủ comment
-            $isAuthorized = Staff::where('user_id', $user->id)
-                ->whereIn('level', [3, 4])
-                ->exists();
-            if ($user->id != $data->user_id && !$isAuthorized) {
-                return response()->json([
-                    'message' => 'You do not have permission to delete this comment'
-                ], 403);
-            }
-            // Tiến hành xóa comment
-            if ($data->delete()) {
-                return response()->json([
-                    'status'  => true,
-                    'message' => 'Comment deleted successfully'
-                ]);
-            }
+        if (Comment::find($id)->delete()) {
             return response()->json([
-                'message' => 'Delete error!'
-            ], 500);
-        } catch (\Exception $e) {
+                'status'    =>  true,
+                'message'   =>  'Success delete!'
+            ]);
+        } else {
             return response()->json([
-                'message' => 'Something went wrong!',
-                'error'   => $e->getMessage()
-            ], 500);
+                'status'    =>  false,
+                'message'   =>  'Error'
+            ]);
         }
     }
+    public function Clientdelete($id)
+    {
+        $userId = Auth()->id();
+        $comment = Comment::find($id);
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+        if ($comment->id_user !== $userId) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
+        $comment->delete();
 
+        return response()->json(['message' => 'Comment deleted successfully']);
+    }
     public function logout()
     {
         auth()->user()->tokens()->delete();

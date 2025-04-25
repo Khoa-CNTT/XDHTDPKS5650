@@ -22,7 +22,7 @@ class CommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['required', 'string', function ($attribute, $value, $fail) {
+            'text' => ['required', 'string', function ($value, $fail) {
                 $bannedWords = ['hỗn', 'tục', 'tuc', 'chửi', 'chui']; // Danh sách từ cấm
                 foreach ($bannedWords as $word) {
                     if (stripos($value, $word) !== false) {

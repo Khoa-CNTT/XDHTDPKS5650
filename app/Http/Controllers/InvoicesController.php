@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoices;
+use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InvoicesController extends Controller
 {
+
     public function index()
     {
         $data = Invoices::all();
