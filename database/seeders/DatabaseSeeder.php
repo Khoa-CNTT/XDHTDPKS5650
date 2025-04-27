@@ -3,6 +3,10 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Feature;
+use Database\Seeders\FeatureSeeder as SeedersFeatureSeeder;
+use FeatureSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +23,9 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            UserSeeder::class
+            UserSeeder::class,
+            SeedersFeatureSeeder::class,
+            LevelFeaturePermissionSeeder::class
         ]);
     }
 }

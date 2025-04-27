@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_room_categories');
             $table->longText('more_service')->nullable();
             $table->timestamps();
-        
+
             $table->foreign('id_room_categories')->references('id')->on('room_categories')->onDelete('cascade');
         });
     }

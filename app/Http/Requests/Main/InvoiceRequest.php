@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Main;
 
 use Illuminate\Foundation\Http\FormRequest;
+use SebastianBergmann\Type\TrueType;
 
 class InvoiceRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class InvoiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,11 @@ class InvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'firstName'     => 'required|string|max:255',
+            'lastName'      => 'required|string|max:255',
+            'note'          => 'nullable|string|max:1000',
+            'paymentMethod' => 'required|integer',
+            'id_order'      => 'required|string',
         ];
     }
 }

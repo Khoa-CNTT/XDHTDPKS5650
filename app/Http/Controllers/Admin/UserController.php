@@ -10,9 +10,11 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+
     public $successStatus = 200;
     public function index()
     {
@@ -39,21 +41,15 @@ class UserController extends Controller
     {
         //
     }
-    public function destroy(string $id)
+
+    public function logout()
     {
-        if(Staff::where('id',$id)->delete()){
-            return response()->json(["Delete Staff success."]);
-        }else{
-            return response()->json(["Delete Staff error."]);
-        }
-    }
-    public function logout(){
         auth()->user()->tokens()->delete();
         // $request->user()->currentAccessToken()->delete();
         // $user->tokens()->where(`id`,$tokenId)->delete();
         return response()->json(
             [
-                'message'=>'success'
+                'message' => 'success'
             ],
             200
         );
@@ -84,7 +80,8 @@ class UserController extends Controller
         if ($this->doLogin($login)) {
             $user = Auth::user();
             $token = $user->createToken('authToken')->plainTextToken;
-            return response()->json([
+            return response()->json(
+                [
                     'success' => 'success',
                     'token' => $token,
                     'type_token' => 'Bearer',
@@ -93,11 +90,13 @@ class UserController extends Controller
                 $this->successStatus
             );
         } else {
-            return response()->json([
+            return response()->json(
+                [
                     'response' => 'error',
                     'errors' => ['errors' => 'invalid email or password'],
                 ],
-            $this->successStatus);
+                $this->successStatus
+            );
         }
     }
     public function updateAdmin(UpdateUserRequest $request)
@@ -114,7 +113,7 @@ class UserController extends Controller
         // }
         if($data['password']!='password'){
             $data['password'] = bcrypt($data['password']);
-        }else{
+        } else {
             $data['password'] = $user->password;
         }
         if($user->update($data)){
@@ -122,53 +121,66 @@ class UserController extends Controller
             //     $file->move('upload/user/avatar',$file->getClientOriginalName());
             // }
             return response()->json(["Update profile success."]);
-        }else{
+        } else {
             return response()->json(["Update profile error."]);
         }
     }
     public function loginStaff(LoginRequest $request)
     {
-        $login = [
+        $credentials = [
             'email' => $request->email,
             'password' => $request->password,
         ];
 
-        if ($this->doLogin2($login)) {
+        if ($this->doLogin2($credentials)) {
             $staff = Auth::guard('staff')->user();
 
-            // Kiểm tra level nếu cần
-            if ($staff->level == 3) {
-                $token = $staff->createToken('authToken')->plainTextToken;
-                return response()->json([
-                    'success' => 'success',
-                    'token' => $token,
-                    'type_token' => 'Bearer',
-                    'Auth' => $staff,
-                ], 200);
-            } else {
-                return response()->json([
-                    'response' => 'error',
-                    'errors' => ['errors' => 'Unauthorized access level'],
-                ], 403); // Forbidden
-            }
-        } else {
+            $token = $staff->createToken('authToken')->plainTextToken;
+
             return response()->json([
-                    'response' => 'error',
-                    'errors' => ['errors' => 'Invalid email or password'],
-                ], 401);
+                'success' => true,
+                'token' => $token,
+                'type_token' => 'Bearer',
+                'auth' => $staff,
+            ], 200);
         }
+
+        return response()->json([
+            'success' => false,
+            'errors' => ['message' => 'Sai tài khoản hoặc mật khẩu'],
+        ], 401);
     }
+
     public function staffCreate(StaffRequest $request)
     {
         $data = $request->all();
-        if(Staff::create($data)){
+        if (Staff::create($data)) {
             return response()->json(["Create Staff success."]);
-        }else{
+        } else {
             return response()->json(["Create Staff error."]);
         }
     }
-    public function staffList(){
+    public function staffList()
+    {
         $data = Staff::all();
         return response()->json([$data]);
+    }
+    public function staffUpdate(StaffRequest $request, string $id)
+    {
+        $data = $request->all();
+        $type = Staff::findOrFail($id);
+        if($type->update($data)){
+            return response()->json(["Update success."]);
+        }else{
+            return response()->json(["Update error."]);
+        }
+    }
+    public function destroy(string $id)
+    {
+        if (Staff::where('id', $id)->delete()) {
+            return response()->json(["Delete Staff success."]);
+        } else {
+            return response()->json(["Delete Staff error."]);
+        }
     }
 }

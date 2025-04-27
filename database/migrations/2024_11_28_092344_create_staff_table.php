@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('avatar')->nullable();
-            $table->unsignedInteger('level')->default(3)->comment = 'staff:3,manager:4';
+            $table->unsignedInteger('level')->default(4)->comment = 'staff:3,manager:4';// đã sửa ở bảng kia thành 2 với 3
             $table->rememberToken();
             $table->timestamps();
         });

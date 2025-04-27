@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\RoomRequest;
 use Illuminate\Http\Request;
 use App\Models\Room;
+use App\Models\Staff;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
+    
     public function getData()
     {
         $data = Room::all();
@@ -37,7 +41,7 @@ class RoomController extends Controller
         $data = Room::find($id);
         return response()->json([$data]);
     }
-    public function update(Request $request)
+    public function update(RoomRequest $request)
     {
         $data   = $request->all();
 

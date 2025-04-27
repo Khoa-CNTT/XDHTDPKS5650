@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 use App\Http\Requests\Staff\RentalDatailRequest;
 use App\Models\RentalDetail;
+use App\Models\Staff;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RentalDetailController extends Controller
 {

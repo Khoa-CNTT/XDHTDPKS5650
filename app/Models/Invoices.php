@@ -12,12 +12,14 @@ class Invoices extends Model
     protected $fillable = [
         'id_user',
         'id_room',
+        'id_order',
         'firstName',
         'lastName',
         'email',
         'phone',
         'paymentMethod',
         'note',
-        'total'
+        'total',
+        'type'
     ];
 }
