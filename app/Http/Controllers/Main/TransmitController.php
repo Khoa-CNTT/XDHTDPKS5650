@@ -32,4 +32,8 @@ class TransmitController extends Controller
         $data = Blog::where('status', 1)->get();
         return response()->json($data);
     }
+    public function detailBlog(string $id){
+        $data = Blog::where('id',$id)->get();
+        return response()->json($data);
+    }
 }

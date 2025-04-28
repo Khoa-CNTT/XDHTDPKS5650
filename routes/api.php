@@ -20,6 +20,7 @@ use App\Http\Controllers\Main\CustomerController;
 use App\Http\Controllers\Main\TransmitController;
 use App\Http\Controllers\RentalDetailController;
 use App\Http\Controllers\Staff\RateController;
+use App\Http\Controllers\CountryController;
 use Dom\Comment;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -121,11 +122,14 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
 Route::post('/register', [CustomerController::class, 'register']);
 Route::post('/login', [CustomerController::class, 'login']);
 
+Route::get('country', [CountryController::class, 'index']);
+Route::get('country/{id_country}', [CountryController::class, 'show']);
 Route::get('/list-room', [TransmitController::class, 'listRoom']);
 Route::get('/detail-room/{id}',[TransmitController::class,'detailRoom']);
 Route::get('/list-service',[TransmitController::class,'listService']);
 Route::get('/list-product',[TransmitController::class,'listProduct']);
 Route::get('/list-blog',[TransmitController::class,'listBlog']);
+Route::get('/detail-blog/{id}',[TransmitController::class,'detailBlog']);
 
 // Main sanctum
 Route::middleware('auth:sanctum')->group(function () {
