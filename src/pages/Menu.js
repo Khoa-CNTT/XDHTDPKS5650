@@ -45,23 +45,20 @@ function Menu() {
       <div className="gdlr-page-title-wrapper">
         <div className="gdlr-page-title-overlay" />
         <div className="gdlr-page-title-container container">
-          <h1 className="gdlr-page-title">Vietnam's leading experienced restaurant</h1>
+          <h1 className="gdlr-page-title">Các món chính tại đây</h1>
+          <span className="gdlr-page-caption">Bán vì đam mê nên không có bán chạy lắm. Thích thì mua không thích thì
+          mua. Không ý kiến.</span>
         </div>
       </div>
       <div className="content-wrapper">
         <div className="gdlr-content">
           <div className="with-sidebar-wrapper">
-            <div className="with-sidebar-left ">
-              <div className="with-sidebar-content twelve columns">
+            <div className="with-sidebar-container container">
+              <div className="with-sidebar-left eight columns">
                 <div className="main-content-container container gdlr-item-start-content">
                   <div className="gdlr-item gdlr-main-content">
                     <section>
                       <div className="container center">
-                        <div>
-                          <h2>Các món chính tại đây</h2>
-                          <p className="desc">Bán vì đam mê nên không có bán chạy lắm. Thích thì mua không thích thì
-                            mua. Không ý kiến.</p>
-                        </div>
                         <div className="grid-container card-container">
                           {products.map((product, index) => (
                             <div key={product.id || index} className="card">
@@ -76,6 +73,23 @@ function Menu() {
                       </div>
                     </section>
                   </div>
+                </div>
+              </div>
+              <div className="gdlr-sidebar gdlr-right-sidebar four columns sidebar-menu-right">
+                <div className="gdlr-item-start-content sidebar-right-item">
+                  <div id="search-3" className="widget widget_search gdlr-item gdlr-widget"><div className="gdl-search-form">
+                      <form method="get" id="searchform" action="https://demo.goodlayers.com/hotelmaster/dark/">
+                        <div className="search-text" id="search-text">
+                          <input type="text" name="s" id="s" autoComplete="off" data-default="Type keywords..." />
+                        </div>
+                        <input type="submit" id="searchsubmit" className="search-menu"/>
+                        <div className="clear" />
+                      </form>
+                    </div></div><div id="text-2" className="widget widget_text gdlr-item gdlr-widget">
+                    <h3 className="gdlr-widget-title">Text Widget</h3>
+                    <div className="clear" />			
+                    <div className="textwidget">Tìm kiếm món ngon tại đây. </div>
+                  </div>	
                 </div>
               </div>
             </div>

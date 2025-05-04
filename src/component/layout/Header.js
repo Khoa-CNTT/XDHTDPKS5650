@@ -24,7 +24,6 @@ function Header() {
           if (res.ok) {
             const data = await res.json();
             setUser(data.user);
-            console.log("Thông tin người dùng:", data);
           } else {
             console.error("Lỗi khi lấy thông tin người dùng:", await res.json());
           }
@@ -147,6 +146,11 @@ function Header() {
                   <li>
                     <Link to="/Profile">
                       <span className="info-user">Thông tin cá nhân</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/HistoryBooking">
+                      <span className="info-user">Lịch sử đặt phòng</span>
                     </Link>
                   </li>
                   <li onClick={handleLogout}>Đăng xuất</li>

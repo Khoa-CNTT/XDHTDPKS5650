@@ -31,6 +31,14 @@ function Booking() {
     };
     console.log("Dữ liệu form gửi đi:", formData);
 
+    if (localStorage.getItem("bookingInfo")) {
+      localStorage.removeItem("bookingInfo");
+    }
+    
+    if (localStorage.getItem("rooms")) {
+      localStorage.removeItem("rooms");
+    }
+        
     try {
       const res = await fetch("http://127.0.0.1:8000/api/choose-room", {
         method: "POST",
@@ -42,7 +50,9 @@ function Booking() {
       });
 
       if (res.ok) {
+        const responseData = await res.json()
         localStorage.setItem("bookingInfo", JSON.stringify(formData));
+        localStorage.setItem("rooms", JSON.stringify(responseData));
         navigate("/Booking/Choose-room");
       } else {
         const errorData = await res.json();
@@ -200,6 +210,7 @@ function Booking() {
                     </div>
                     <div className="clear" />
                   </div>
+                  <div className="" style={{ marginBottom: '100px' }}></div>
                 </div>
                 <div className="clear" />
               </div>

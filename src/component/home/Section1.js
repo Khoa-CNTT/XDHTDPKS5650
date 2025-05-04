@@ -22,19 +22,11 @@ function Section1() {
       <SwiperSlide>
       <div style={{ position: 'relative' }}>
         <img src="/frontend/anh/slide1.jpg" alt="Slide 1" style={{ width: '100%', height: 'auto'}} />
-        <div
-          style={{
-            position: 'absolute',
-            top: '30%',
-            left: '10%',
-            color: 'white',
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            padding: '10px 20px',
-            borderRadius: '10px',
-          }}
-        >
-          Ưu đãi mùa hè lên đến 50%!
+        <div className="intro-text">
+          <p className="line line-1">WELCOME TO</p>
+          <p className="line line-2">____</p>
+          <p className="line line-3">Shilla Monogram</p>
+          <p className="line line-4">Khách sạn số 1 Việt Nam</p>
         </div>
       </div>
       </SwiperSlide>

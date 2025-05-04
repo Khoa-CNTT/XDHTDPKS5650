@@ -1,10 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
-function Booking() {
+function Booking2() {
   const [checkInDate, setCheckInDate] = useState(new Date());
   const [checkOutDate, setCheckOutDate] = useState(new Date());
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [room, setRoom] = useState(null); // Thêm state để lưu thông tin phòng từ rooms[0]
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Lấy dữ liệu từ localStorage
+    const bookingInfo = localStorage.getItem("bookingInfo");
+    const rooms = localStorage.getItem("rooms");
+
+    if (bookingInfo) {
+      const parsedInfo = JSON.parse(bookingInfo);
+      if (parsedInfo.IssueDate) setCheckInDate(new Date(parsedInfo.IssueDate));
+      if (parsedInfo.DueDate) setCheckOutDate(new Date(parsedInfo.DueDate));
+      if (parsedInfo.adult) setAdults(parsedInfo.adult);
+      if (parsedInfo.children) setChildren(parsedInfo.children);
+    }
+
+    if (rooms) {
+      const parsedRooms = JSON.parse(rooms);
+      if (parsedRooms.length > 0) {
+        setRoom(parsedRooms[0]); // Lấy thông tin phòng đầu tiên
+      }
+    }
+  }, []);
+
+  const handleBack = () => {
+    navigate("/Booking");
+  };
 
   return (
     <div>
@@ -20,15 +51,20 @@ function Booking() {
             <div className="with-sidebar-container container gdlr-class-no-sidebar">
               <div className="with-sidebar-left twelve columns">
                 <div className="with-sidebar-content twelve columns">
-                  <div className="gdlr-item gdlr-item-start-content" id="gdlr-single-booking-content" data-ajax="https://demo.goodlayers.com/hotelmaster/wp-admin/admin-ajax.php">
-                    <form className="gdlr-reservation-bar" data-action="gdlr_hotel_booking">
-                      <div className="gdlr-reservation-bar-title">Đặt phòng cho bạn</div>
-                      <div className="gdlr-reservation-bar-summary-form" />
-                      <div className="gdlr-reservation-bar-room-form" />
+                  <div
+                    className="gdlr-item gdlr-item-start-content"
+                    id="gdlr-single-booking-content"
+                  >
+                    <form className="gdlr-reservation-bar">
+                      <div className="gdlr-reservation-bar-title">
+                        Đặt phòng cho bạn
+                      </div>
                       <div className="gdlr-reservation-bar-date-form">
                         {/* Thời gian vào */}
                         <div className="gdlr-reservation-field gdlr-resv-datepicker">
-                          <span className="gdlr-reservation-field-title">Thời gian vào</span>
+                          <span className="gdlr-reservation-field-title">
+                            Thời gian vào
+                          </span>
                           <div className="gdlr-datepicker-wrapper">
                             <DatePicker
                               selected={checkInDate}
@@ -39,25 +75,12 @@ function Booking() {
                             />
                           </div>
                         </div>
-                        <div className="gdlr-reservation-field gdlr-resv-combobox "><span className="gdlr-reservation-field-title">Đêm</span>
-                          <div className="gdlr-combobox-wrapper">
-                            <select name="gdlr-night" id="gdlr-night">
-                              <option value={1} selected>1</option>
-                              <option value={2}>2</option>
-                              <option value={3}>3</option>
-                              <option value={4}>4</option>
-                              <option value={5}>5</option>
-                              <option value={6}>6</option>
-                              <option value={7}>7</option>
-                              <option value={8}>8</option>
-                              <option value={9}>9</option>
-                            </select>
-                          </div>
-                        </div>
                         <div className="clear" />
                         {/* Thời gian ra */}
                         <div className="gdlr-reservation-field gdlr-resv-datepicker">
-                          <span className="gdlr-reservation-field-title">Thời gian ra</span>
+                          <span className="gdlr-reservation-field-title">
+                            Thời gian ra
+                          </span>
                           <div className="gdlr-datepicker-wrapper">
                             <DatePicker
                               selected={checkOutDate}
@@ -69,83 +92,89 @@ function Booking() {
                           </div>
                         </div>
                         <div className="clear" />
-                        <div className="gdlr-reservation-field gdlr-resv-combobox gdlr-reservation-bar-room-number"><span className="gdlr-reservation-field-title">Số phòng</span>
-                          <div className="gdlr-combobox-wrapper">
-                            <select name="gdlr-room-number" id="gdlr-room-number">
-                              <option value={1} selected>1</option>
-                              <option value={2}>2</option>
-                              <option value={3}>3</option>
-                              <option value={4}>4</option>
-                              <option value={5}>5</option>
-                              <option value={6}>6</option>
-                              <option value={7}>7</option>
-                              <option value={8}>8</option>
-                              <option value={9}>9</option>
-                            </select>
-                          </div>
+                        <div
+                          className="gdlr-reservation-field gdlr-resv-combobox "
+                          style={{
+                            marginBottom: "50px",
+                            marginTop: "50px",
+                            color: "#b89f80",
+                          }}
+                        >
+                          <span>Xác nhận thông tin của bạn!</span>
                         </div>
                         <div className="clear" />
-                        <div className="gdlr-reservation-people-amount-wrapper" id="gdlr-reservation-people-amount-wrapper">
-                          <div className="gdlr-reservation-people-amount">
-                            <div className="gdlr-reservation-people-title">Phòng <span>1</span></div>
-                            <div className="gdlr-reservation-field gdlr-resv-combobox "><span className="gdlr-reservation-field-title">Người lớn</span>
-                              <div className="gdlr-combobox-wrapper">
-                                <select name="gdlr-adult-number[]">
-                                  <option value={1}>1</option>
-                                  <option value={2} selected>2</option>
-                                  <option value={3}>3</option>
-                                  <option value={4}>4</option>
-                                  <option value={5}>5</option>
-                                  <option value={6}>6</option>
-                                  <option value={7}>7</option>
-                                  <option value={8}>8</option>
-                                  <option value={9}>9</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div className="gdlr-reservation-field gdlr-resv-combobox "><span className="gdlr-reservation-field-title">Trẻ em</span>
-                              <div className="gdlr-combobox-wrapper">
-                                <select name="gdlr-children-number[]">
-                                  <option value={0}>0</option>
-                                  <option value={1}>1</option>
-                                  <option value={2}>2</option>
-                                  <option value={3}>3</option>
-                                  <option value={4}>4</option>
-                                  <option value={5}>5</option>
-                                  <option value={6}>6</option>
-                                  <option value={7}>7</option>
-                                  <option value={8}>8</option>
-                                  <option value={9}>9</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div className="clear" />
-                          </div>
-                        </div>
-                        <div className="clear" />
-                        <button id="gdlr-reservation-bar-button" className="gdlr-reservation-bar-button gdlr-button with-border">Kiểm tra</button>
+                        {/* Nút Quay lại */}
+                        <button
+                          type="button"
+                          id="gdlr-reservation-bar-button"
+                          className="gdlr-reservation-bar-button gdlr-button with-border"
+                          onClick={handleBack}
+                        >
+                          Quay lại
+                        </button>
                         <div className="clear" />
                       </div>
-                      <div className="gdlr-reservation-bar-service-form" id="gdlr-reservation-bar-service-form" />
+                      <div
+                        className="gdlr-reservation-bar-service-form"
+                        id="gdlr-reservation-bar-service-form"
+                      />
                     </form>
                     <div className="gdlr-booking-content">
-                      <div className="gdlr-booking-process-bar" id="gdlr-booking-process-bar" data-state={1}>
-                        <div data-process={1} className="gdlr-booking-process gdlr-active">1. Chọn ngày</div>
-                        <div data-process={2} className="gdlr-booking-process ">2. Chọn phòng</div>
-                        <div data-process={3} className="gdlr-booking-process ">3. Đặt chỗ</div>
-                        <div data-process={4} className="gdlr-booking-process ">4. Xác nhận</div>
-                      </div>
-                      <div className="gdlr-booking-content-wrapper">
-                        <div className="gdlr-booking-content-inner" id="gdlr-booking-content-inner">
-                          <div className="gdlr-datepicker-range-wrapper">
-                            <div className="gdlr-datepicker-range" id="gdlr-datepicker-range" data-dfm="d M yy" data-block="[&quot;2018-02-14&quot;,&quot;2018-02-15&quot;]" />
+                      <div className="gdlr-booking-room-wrapper">
+                        {/* Hiển thị thông tin phòng */}
+                        {room && (
+                          <div className="gdlr-item gdlr-room-item gdlr-medium-room">
+                            <div className="gdlr-ux gdlr-medium-room-ux">
+                              <div className="gdlr-room-thumbnail">
+                                <img
+                                  src="https://via.placeholder.com/400x300" // Placeholder nếu không có ảnh
+                                  alt={room.room_name}
+                                  width={400}
+                                  height={300}
+                                />
+                              </div>
+                              <div className="gdlr-room-content-wrapper">
+                                <h3 className="gdlr-room-title">
+                                  {room.room_name || "Tên phòng"}
+                                </h3>
+                                <div className="gdlr-hotel-room-info">
+                                  <div className="gdlr-room-info">
+                                    <i className="fa fa-check-square-o icon-check" />
+                                    <span className="gdlr-head">Giá:</span>
+                                    <span className="gdlr-tail">
+                                      {room.price || "Không có giá"} / đêm
+                                    </span>
+                                  </div>
+                                  <div className="gdlr-room-info">
+                                    <i className="fa fa-check-square-o icon-check" />
+                                    <span className="gdlr-head">Trạng thái:</span>
+                                    <span className="gdlr-tail">
+                                      {room.status === 1
+                                        ? "Còn trống"
+                                        : "Đã đặt"}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="gdlr-room-content">
+                                  Thông tin thêm:{" "}
+                                  {room.more_service || "Không có thông tin"}
+                                </div>
+                                <a
+                                  className="gdlr-room-selection gdlr-button with-border"
+                                  href="#"
+                                  data-roomid={room.id}
+                                >
+                                  Chọn phòng này
+                                </a>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                       <div className="clear" />
                     </div>
-                    <div className="clear" />
                   </div>
+                  <div className="" style={{ marginBottom: "100px" }}></div>
                 </div>
                 <div className="clear" />
               </div>
@@ -153,10 +182,9 @@ function Booking() {
             </div>
           </div>
         </div>
-        <div className="clear" />
       </div>
     </div>
-
   );
 }
-export default Booking;
+
+export default Booking2;

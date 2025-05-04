@@ -11,12 +11,15 @@ import Booking from './pages/Booking';
 import Booking2 from './pages/Booking2';
 import Booking3 from './pages/Booking3';
 import Booking4 from './pages/Booking4';
+import Booking5 from './pages/Booking5';
 import Blog from './pages/Blog';
 import Menu from './pages/Menu';
 import RoomDetail from "./pages/detail/RoomDetail";
 import DetailBlog from "./pages/detail/DetailBlog";
 import Login from './pages/client/login';
 import Register from './pages/client/register';
+import Profile from './pages/Profile';
+import HistoryBook from './pages/HistoryBook';
 
 document.body.classList.add('home', 'page-template-default', 'page', 'page-id-3720', '_masterslider', '_msp_version_3.2.2', 'hotelmaster-button-classic-style', 'header-style-2', 'hotelmaster-classic-style', 'hotelmaster-single-classic-style');
 
@@ -42,10 +45,13 @@ function App() {
               <Route path="/Booking" element={<Booking />} />
               <Route path="/Booking/Choose-room" element={<Booking2 />} />
               <Route path="/Booking/Choose-service" element={<Booking3 />} />
-              <Route path="/Booking/Confirm" element={<Booking4 />} />
+              <Route path="/Booking/Reservation" element={<Booking4 />} />
+              <Route path="/Booking/Confirm" element={<Booking5 />} />
               <Route path="/Blog" element={<Blog />} />
               <Route path="/Blog-detail/:id" element={<DetailBlog />} />
               <Route path="/Menu" element={<Menu />} />
+              <Route path="/HistoryBooking" element={<HistoryBook />} />
+              <Route path="/Profile" element={<Profile />} />
 
               {/* Trang login và register không có Header và Footer */}
               <Route path="/login" element={<Login />} />
