@@ -10,11 +10,14 @@ class Invoices extends Model
     use HasFactory;
     protected $table='invoices';
     protected $fillable = [
+        'code',
+        'name',
+        'issueDate',
+        'dueDate',
+        'address',
         'id_user',
         'id_room',
         'id_order',
-        'firstName',
-        'lastName',
         'email',
         'phone',
         'paymentMethod',
@@ -22,4 +25,15 @@ class Invoices extends Model
         'total',
         'type'
     ];
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'invoice_services', 'invoice_id', 'service_id');
+    }
+    
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'id_room');
+    }
+
 }
