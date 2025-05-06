@@ -165,6 +165,12 @@ function Header() {
         </Link>
       )}
     </div>
+    <df-messenger
+        intent="WELCOME"
+        chat-title="Hotel Support"
+        agent-id="54701f30-96e3-49f2-a6b9-eb4c16c5d257"
+        language-code="vi"
+      ></df-messenger>
     </>
   );
 }

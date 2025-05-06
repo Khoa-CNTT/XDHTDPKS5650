@@ -4,6 +4,13 @@ import React, { useState, useEffect } from "react";
 function Booking4() {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    note: "",
+  });
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -34,6 +41,18 @@ function Booking4() {
     fetchUserProfile();
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: "",
+        note: "",
+      });
+    }
+  }, [user]);
+
   const handleBack = () => {
     navigate("/Booking/Choose-service");
   };
@@ -44,31 +63,33 @@ function Booking4() {
       console.error("Không tìm thấy bookingInfo trong localStorage");
       return;
     }
+    
 
     const parsedInfo = JSON.parse(bookingInfo);
-    const name = document.querySelector('input[name="first_name"]').value;
-    const email = document.querySelector('input[name="email"]').value;
-    const phone = document.querySelector('input[name="phone"]').value;
-    const address = document.querySelector('textarea[name="address"]').value;
-    const note = document.querySelector('textarea[name="additional-note"]').value;
     const token = localStorage.getItem("token");
+
+    if (parsedInfo.IssueDate === parsedInfo.DueDate) {
+      alert("Số ngày đặt phòng không hợp lệ. Ngày đến và ngày đi không được trùng nhau.");
+      return;
+    }
 
     const payload = {
       IssueDate: parsedInfo.IssueDate,
       DueDate: parsedInfo.DueDate,
-      name,
-      email,
-      phone,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      more_service: parsedInfo.more_service,
       id_room: parsedInfo.id_room,
-      note,
+      note: formData.note,
     };
-
-    console.log("Dữ liệu gửi đi:", payload);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/booking", {
         method: "POST",
         headers: {
+          "Accept": "application/json" ,
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
@@ -88,9 +109,12 @@ function Booking4() {
     }
   };
 
-  const handlePaymentSubmit = () => {
+  const handlePaymentSubmit = () => {};
 
-  }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div>
@@ -184,26 +208,49 @@ function Booking4() {
                       <form className="gdlr-booking-contact-form" method="post" data-ajax="https://demo.goodlayers.com/hotelmaster/dark/wp-admin/admin-ajax.php">
                         <p className="gdlr-form-half-left">
                             <span>Tên *</span>
-                            <input type="text" name="first_name" value={user.name} />
+                            <input
+                              type="text"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
+                            />
                         </p>
                         
                         <div className="clear" />
                         <p className="gdlr-form-half-left">
                             <span>Email *</span>
-                            <input type="text" name="email" value={user.email} />
+                            <input
+                              type="text"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
+                            />
                         </p>
                         <p className="gdlr-form-half-right">
                             <span>Số điện thoại *</span>
-                            <input type="text" name="phone" value={user.phone} />
+                            <input
+                              type="text"
+                              name="phone"
+                              value={formData.phone}
+                              onChange={handleInputChange}
+                            />
                         </p>
                         <div className="clear" />
                         <p className="gdlr-form-half-left">
                             <span>Địa chỉ</span>
-                            <textarea name="address" defaultValue={""} />
+                            <textarea
+                              name="address"
+                              value={formData.address}
+                              onChange={handleInputChange}
+                            />
                         </p>
                         <p className="gdlr-form-half-right">
                             <span>Ghi chú</span>
-                            <textarea name="additional-note" defaultValue={""} />
+                            <textarea
+                              name="note"
+                              value={formData.note}
+                              onChange={handleInputChange}
+                            />
                         </p>
                         <div className="clear" />
                         {/* <p className="gdlr-form-coupon">

@@ -65,17 +65,6 @@ function Register() {
     }
     setLoading(true);
 
-    // Log dữ liệu của form
-    console.log({
-      name,
-      email,
-      password,
-      phone,
-      address,
-      country,
-      avatar: avatar ? avatar.name : null, // Log tên file avatar nếu có
-    });
-
     try {
       const formData = new FormData();
       formData.append("name", name);
@@ -88,21 +77,27 @@ function Register() {
         formData.append("avatar", avatar);
       }
 
+      console.log("FormData chuẩn bị gửi:", Array.from(formData.entries()));
+
       const res = await fetch("http://127.0.0.1:8000/api/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
       });
-      const data = await res.json();
-      if (res.ok) {
-        setSuccess("Đăng ký thành công!");
-        localStorage.setItem("token", data.token);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } else {
-        setError(data?.message || "Đăng ký thất bại. Vui lòng kiểm tra lại.");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Lỗi từ API:", errorData);
+        setError(errorData?.message || "Đăng ký thất bại. Vui lòng kiểm tra lại.");
+        return;
       }
+
+      setSuccess("Đăng ký thành công!");
+      setTimeout(() => {
+        navigate("/Login");
+      }, 1000);
     } catch (err) {
       setError("Đã xảy ra lỗi mạng. Vui lòng thử lại.");
     } finally {

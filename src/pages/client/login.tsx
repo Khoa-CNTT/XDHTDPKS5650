@@ -45,17 +45,26 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
+      // In toàn bộ phản hồi từ API
+      console.log("Phản hồi từ API:", res);
+
       const data = await res.json();
-      if (res.ok) {
+
+      // In dữ liệu JSON trả về từ API
+      console.log("Dữ liệu JSON từ API:", data);
+
+      if (res.ok && !data.errors) {
         setSuccess("Đăng nhập thành công!");
         localStorage.setItem("token", data.token);
         setTimeout(() => {
           navigate("/");
         }, 1000);
       } else {
-        setError(data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+        setError("Sai thông tin đăng nhập. Vui lòng kiểm tra lại.");
       }
     } catch (err) {
+      console.error("Lỗi mạng:", err);
       setError("Đã xảy ra lỗi mạng. Vui lòng thử lại.");
     } finally {
       setLoading(false);

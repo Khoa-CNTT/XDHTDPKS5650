@@ -54,22 +54,50 @@ function Profile() {
   }
 
   return (
+    <>
     <div className="profile-container">
-      <div className="profile-card">
-        <div className="profile-avatar">
-          <img
-            src={profile.avatar || "https://via.placeholder.com/150"} // Hiển thị avatar hoặc ảnh mặc định
-            alt="Avatar"
-          />
+      <form class="profile-edit-main" autocomplete="off">
+        <div class="avatar-section">
+          <div class="big-avatar">
+            <img className="img-avt" src={profile.avatar || "https://via.placeholder.com/150"} alt="Avatar" />
+          </div>
+          <button type="button" class="change-avatar-btn">Đổi ảnh</button>
         </div>
-        <div className="profile-info">
-          <h1>{profile.name}</h1>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Số điện thoại:</strong> {profile.phone}</p>
-          <p><strong>Địa chỉ:</strong> {profile.address}</p>
+        <div class="profile-form-section">
+          <div class="profile-title">Thông Tin Cá Nhân</div>
+          <div class="profile-form">
+            <div class="input-row">
+              <label for="name">Họ & Tên</label>
+              <input type="text" id="name" name="name" required value={profile.name} />
+            </div>
+            <div class="input-row">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value={profile.email} disabled/>
+            </div>
+            <div class="input-row">
+              <label for="phone">SĐT</label>
+              <input type="tel" id="phone" name="phone" required value={profile.phone} />
+            </div>
+            <div class="input-row">
+              <label for="address">Địa chỉ</label>
+              <input type="text" id="address" name="address" required value={profile.address} />
+            </div>
+            <div class="input-row">
+              <label for="nation">Quốc tịch</label>
+              <input type="text" id="nation" name="nation" required value={profile.country} />
+            </div>
+            <div class="input-row">
+              <label for="password">Mật khẩu</label>
+              <input type="password" id="password" name="password" required value="12345678" autocomplete="new-password" />
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button class="save-btn" type="submit">Lưu thay đổi</button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
+    </>
   );
 }
 

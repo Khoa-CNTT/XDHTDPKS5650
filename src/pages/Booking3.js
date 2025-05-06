@@ -224,7 +224,10 @@ function Booking3() {
                                   {service.service_name}
                                 </span>
                                 <span className="gdlr-room-service-unit">
-                                  ${service.price}10 $ / {service.unit}đêm
+                                <span className="gdlr-room-service-unit">
+                                  ${parseFloat(service.price).toLocaleString("en-US", 
+                                  { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / slot
+                                </span>
                                 </span>
                               </div>
                             ))}
