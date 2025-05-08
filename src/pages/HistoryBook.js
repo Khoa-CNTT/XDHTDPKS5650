@@ -58,6 +58,7 @@ function HistoryBook() {
         <div className="gdlr-page-title-overlay" />
         <div className="gdlr-page-title-container container">
           <h1 className="gdlr-page-title">Lịch sử đặt phòng</h1>
+          <h1 className="gdlr-page-title">---</h1>
         </div>
       </div>
       <div style={{marginBottom: "50px",marginTop: "50px"}}></div>

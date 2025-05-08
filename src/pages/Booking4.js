@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 function Booking4() {
   const navigate = useNavigate();
   const [user, setUser] = useState("");
+  const [prices, setPrices] = useState("");
+  const [infor, setInfor] = useState("");
+  const [room, setRoom] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -53,6 +56,87 @@ function Booking4() {
     }
   }, [user]);
 
+  const fetchPriceTotal = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Không tìm thấy token trong localStorage");
+      return;
+    }
+  
+    const bookingInfo = localStorage.getItem("bookingInfo");
+    if (!bookingInfo) {
+      console.error("Không tìm thấy bookingInfo trong localStorage");
+      return;
+    }
+  
+    const parsedInfo = JSON.parse(bookingInfo);
+    setInfor(parsedInfo);
+  
+    const payload = {
+      DueDate: parsedInfo.DueDate,
+      IssueDate: parsedInfo.IssueDate,
+      id_room: parsedInfo.id_room,
+      more_service: parsedInfo.more_service,
+    };
+  
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/price-total", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setPrices(data);
+      } else {
+        const errorData = await response.json();
+        console.error("Lỗi từ API price-total:", errorData);
+      }
+    } catch (error) {
+      console.error("Lỗi mạng khi gọi API price-total:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchPriceTotal();
+  }, []);
+
+  const fetchRoomDetails = async () => {
+    const bookingInfo = localStorage.getItem("bookingInfo");
+    if (!bookingInfo) {
+      console.error("Không tìm thấy bookingInfo trong localStorage");
+      return;
+    }
+  
+    const parsedInfo = JSON.parse(bookingInfo);
+    const roomId = parsedInfo.id_room;
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/detail-room/${roomId}`, {
+        method: "GET",
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setRoom(data);
+        console.log("Chi tiết phòng:", data);
+      } else {
+        const errorData = await response.json();
+        console.error("Lỗi từ API detail-room:", errorData);
+      }
+    } catch (error) {
+      console.error("Lỗi mạng khi gọi API detail-room:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchRoomDetails();
+  }, []);
+
   const handleBack = () => {
     navigate("/Booking/Choose-service");
   };
@@ -63,7 +147,6 @@ function Booking4() {
       console.error("Không tìm thấy bookingInfo trong localStorage");
       return;
     }
-    
 
     const parsedInfo = JSON.parse(bookingInfo);
     const token = localStorage.getItem("token");
@@ -83,6 +166,7 @@ function Booking4() {
       more_service: parsedInfo.more_service,
       id_room: parsedInfo.id_room,
       note: formData.note,
+      total: prices.total_price,
     };
 
     try {
@@ -122,6 +206,7 @@ function Booking4() {
         <div className="gdlr-page-title-overlay" />
         <div className="gdlr-page-title-container container">
           <h1 className="gdlr-page-title">Đặt phòng</h1>
+          <h1 className="gdlr-page-title">---</h1>
         </div>
       </div>
       <div className="content-wrapper">
@@ -141,18 +226,24 @@ function Booking4() {
                       <div className="gdlr-price-summary-wrapper">
                         <div className="gdlr-price-summary-head">Giá đặt phòng</div>
                         <div className="gdlr-price-room-summary">
-                          <div className="gdlr-price-room-summary-title">Room 1 : Standard Room – One King Bed</div>
-                          <div className="gdlr-price-room-summary-info gdlr-title-font"><span>Adult : 2</span><span>Children : 0</span><span className="gdlr-price-room-summary-price" href="#">$120.00</span></div>
+                          <div className="gdlr-price-room-summary-title">Phòng : {room[0]?.room_category?.room_type || "Không xác định"}</div>
+                          <div className="gdlr-price-room-summary-info gdlr-title-font"><span>Người lớn : {infor.adult}</span><span>Trẻ em : {infor.children}</span><span className="gdlr-price-room-summary-price" href="#">{room[0]?.price || "0"} VNĐ</span></div>
                         </div>
                         <div className="gdlr-price-summary-vat">
                           <div className="gdlr-price-summary-vat-total">
-                              <span className="gdlr-head">Tổng</span><span className="gdlr-tail">$120.00</span>
-                              <div className="clear" /></div>
-                              <div className="gdlr-price-summary-vat-amount">
-                                <span className="gdlr-head">Thuế 8%</span><span className="gdlr-tail">$9.60</span>
-                                <div className="clear" /></div>
-                          </div>
-                          <div className="gdlr-price-summary-grand-total gdlr-active"><span className="gdlr-head">Giá tổng cộng</span><span className="gdlr-tail">$129.60</span></div>
+                            <span className="gdlr-head">Tổng</span><span className="gdlr-tail">{prices.room_price} VNĐ</span>
+                          <div className="clear" /></div>
+                          <div className="gdlr-price-summary-vat-total">
+                            <span className="gdlr-head">Dịch vụ</span><span className="gdlr-tail">{prices.service_price} VNĐ</span>
+                          <div className="clear" /></div>
+                          <div className="gdlr-price-summary-vat-total">
+                            <span className="gdlr-head">Thuế 8%</span><span className="gdlr-tail">{prices.vat} VNĐ</span>
+                          <div className="clear" /></div>
+                          <div className="gdlr-price-summary-vat-total">
+                            <span className="gdlr-head">Số ngày</span><span className="gdlr-tail">{prices.days} Ngày</span>
+                          <div className="clear" /></div>
+                        </div>
+                        <div className="gdlr-price-summary-grand-total gdlr-active"><span className="gdlr-head">Giá tổng cộng</span><span className="gdlr-tail">{prices.total_price} VNĐ</span></div>
                         </div>
                       <div className="gdlr-reservation-bar-date-form">
                         <div className="clear" />

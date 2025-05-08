@@ -710,7 +710,7 @@ input#searchsubmit.search-menu{
   border-radius: 10px;
   padding: 24px 0 0 0;
   box-shadow: 0 2px 12px #00000022;
-  width: 900px;
+  width: 1000px;
   max-width: 95vw;
 }
 .history-book{
@@ -944,4 +944,8 @@ tbody.history-table-body td {
   .input-row {
     font-size: 0.95rem;
   }
+}
+
+#content-section-2{
+  text-align: center;
 }

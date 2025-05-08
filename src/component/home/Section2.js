@@ -7,7 +7,7 @@ function Section2() {
   const [checkOutDate, setCheckOutDate] = useState(new Date());
 
   return (
-    <section id="content-section-2">
+    <section id="content-section-2" >
     <div className="gdlr-color-wrapper  gdlr-show-all gdlr-skin-dark-brown" style={{backgroundColor: '#322b23', paddingTop: '48px', paddingBottom: '27px'}}>
       <div className="container">
         <div className="gdlr-hotel-availability-wrapper" style={{marginBottom: '20px'}}>
