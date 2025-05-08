@@ -137,6 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile',[CustomerController::class,'profile']);
     Route::get('/history',[CustomerController::class,'history']);
     Route::post('/choose-room',[CustomerController::class,'chooseRoom']);
+    Route::post('/price-total',[CustomerController::class,'priceTotal']);
     Route::post('/booking',[CustomerController::class,'booking']);
     Route::post('/add-to-cart', [CustomerController::class, 'AddToCart']);
     Route::post('/order-product', [CustomerController::class, 'order']);

@@ -13,9 +13,17 @@ class Room extends Model
         'room_name',
         'price',
         'status',
+        'view',
+        'description',
+        'images',
         'id_room_categories',
         'more_service',
     ];
+
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     public function roomCategory()
     {
         return $this->belongsTo(RoomType::class, 'id_room_categories');

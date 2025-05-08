@@ -18,6 +18,7 @@ use App\Models\RoomType;
 use App\Models\RentalDetail;
 use App\Models\Invoices;
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -92,47 +93,100 @@ class CustomerController extends Controller
     }
     public function chooseRoom(Request $request)
     {
-        $quantity = $request->quantity;
+        $quantity  = $request->quantity;
         $IssueDate = Carbon::parse($request->IssueDate);
-        $DueDate = Carbon::parse($request->DueDate);
-        $data['start'] = $IssueDate->format('Y/m/d');
-        $adult = $request->adult;
-        $children = $request->children;
-        $roomType = RoomType::where('Adult', $adult)
-            ->where('Children', $children)
-            ->first();
-        if (!$roomType) {
-            return response()->json(['message' => 'Không tìm thấy loại phòng phù hợp'], 404);
-        }
-        $activeRooms = Room::where('id_room_categories', $roomType->id)
-            ->where('status', 1)
+        $DueDate   = Carbon::parse($request->DueDate);
+        $adult     = $request->adult;
+        $children  = $request->children;
+
+        $roomTypes = RoomType::where('Adult', '>=', $adult)
+            ->whereRaw('(Children + (Adult - ?)) >= ?', [$adult, $children])
             ->get();
 
-        $availableRooms = [];
-        foreach ($activeRooms as $room) {
-            $conflictFound = false;
-            while ($data['start'] <= $DueDate) {
-                $rentalConflict = RentalDetail::where('id_room', $room->id)
-                    ->where('date', $data['start'])
-                    ->where('status', 1)
-                    ->exists();
-                if ($rentalConflict) {
-                    $conflictFound = true;
-                    break;
-                }
-                $data['start'] = Carbon::parse($data['start'])->addDay();  //sửa
-            }
-            if (!$conflictFound) {
-                $availableRooms[] = $room;
-            }
-        }
-        if (count($availableRooms) < $quantity) {
-            return response()->json(['message' => 'Không đủ phòng còn trống'], 404);
+        if ($roomTypes->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy loại phòng phù hợp'], 404);
         }
 
+        $availableRooms = [];
+
+        foreach ($roomTypes as $roomType) {
+            $activeRooms = Room::where('id_room_categories', $roomType->id)
+                ->where('status', 1)
+                ->with('roomCategory')
+                ->get();
+
+            foreach ($activeRooms as $room) {
+                $conflict = false;
+                $currentDate = $IssueDate->copy();
+
+                while ($currentDate <= $DueDate) {
+                    $isBooked = RentalDetail::where('id_room', $room->id)
+                        ->where('date', $currentDate->format('Y-m-d'))
+                        ->where('status', 0)
+                        ->exists();
+
+                    if ($isBooked) {
+                        $conflict = true;
+                        break;
+                    }
+                    $currentDate->addDay();
+                }
+
+                if (! $conflict) {
+                    $availableRooms[] = $room;
+                }
+            }
+        }
+
+        if (count($availableRooms) < $quantity) {
+            return response()->json(['message' => 'Không đủ phòng trống cho yêu cầu'], 400);
+        }
+
+        return response()->json($availableRooms);
+    }
+    public function priceTotal(Request $request)
+    {
+        $IssueDate = Carbon::parse($request->IssueDate);
+        $DueDate   = Carbon::parse($request->DueDate);
+        $id_room   = $request->id_room;
+        $moreService = $request->more_service;
+
+        $days = max(1, $IssueDate->diffInDays($DueDate));
+
+        $room = Room::where('id', $id_room)
+            ->select('id', 'price')
+            ->first();
+
+        if (!$room) {
+            return response()->json(['message' => 'Phòng không tồn tại'], 404);
+        }
+
+        $totalPrice = $room->price * $days;
+
+        $serviceTotal = 0;
+        if (!empty($moreService)) {
+            if (is_string($moreService)) {
+                $moreService = json_decode($moreService, true);
+            }
+
+            $services = Service::whereIn('id', $moreService)
+                ->select('id', 'price')
+                ->get();
+
+            foreach ($services as $service) {
+                $serviceTotal += $service->price;
+            }
+        }
+
+        $VAT =  $totalPrice * 0.08;
+        $grandTotal = $totalPrice + $VAT + $serviceTotal;
+
         return response()->json([
-            $activeRooms,
-            $availableRooms
+            'total_price' => $grandTotal,
+            'room_price' => $totalPrice,
+            'vat' => $VAT,
+            'service_price' => $serviceTotal,
+            'days' => $days,
         ]);
     }
     public function booking(Request $request)
@@ -160,12 +214,7 @@ class CustomerController extends Controller
         $note = $request->note ?? null;
         $paymentMethod = $request->paymentMethod ?? 1;
         $moreService = $request->more_service ?? [];
-
-        $days = max(1, $IssueDate->diffInDays($DueDate));
-        $room = Room::where('id', $id_room)
-            ->select('id', 'price')
-            ->first();
-        $totalPrice = $room->price * $days;
+        $total = $request->total ?? 0;
 
         DB::beginTransaction();
         try {
@@ -182,7 +231,7 @@ class CustomerController extends Controller
                 'phone'         => $phone,
                 'paymentMethod' => $paymentMethod,
                 'note'          => $note,
-                'total'         => $totalPrice,
+                'total'         => $total,
                 'type'          => 'Room',
                 'created_at'    => now(),
                 'updated_at'    => now(),
@@ -201,8 +250,7 @@ class CustomerController extends Controller
             }
             DB::commit();
             return response()->json([
-                'message' => 'Đặt phòng thành công',
-                'total_price' => $totalPrice,
+                'message' => 'Đặt phòng thành công',200
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
