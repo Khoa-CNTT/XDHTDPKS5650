@@ -31,6 +31,16 @@ function Booking() {
     };
     console.log("Dữ liệu form gửi đi:", formData);
 
+    if(formData.IssueDate > formData.DueDate) {
+      alert("Thời gian vào không thể lớn hơn thời gian ra");
+      return;
+    }
+
+    if (formData.IssueDate === formData.DueDate) {
+      alert("Vui lòng chọn thời gian ra lớn hơn thời gian vào");
+      return;
+    }
+
     if (localStorage.getItem("bookingInfo")) {
       localStorage.removeItem("bookingInfo");
     }
@@ -108,6 +118,7 @@ function Booking() {
                               id="gdlr-night"
                               value={nights}
                               onChange={(e) => setNights(Number(e.target.value))}
+                              disabled
                             >
                               {[...Array(10).keys()].map((i) => (
                                 <option key={i + 1} value={i + 1}>
@@ -141,6 +152,7 @@ function Booking() {
                               id="gdlr-room-number"
                               value={rooms}
                               onChange={(e) => setRooms(Number(e.target.value))}
+                              disabled
                             >
                               {[...Array(10).keys()].map((i) => (
                                 <option key={i + 1} value={i + 1}>

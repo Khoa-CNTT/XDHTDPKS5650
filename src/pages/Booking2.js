@@ -26,7 +26,7 @@ function Booking2() {
     if (rooms) {
       const parsedRooms = JSON.parse(rooms);
       if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
-        setRooms(parsedRooms[0]);
+        setRooms(parsedRooms);
       } else {
         console.error("Dữ liệu không hợp lệ trong localStorage");
       }
@@ -189,19 +189,26 @@ function Booking2() {
                         <div className="gdlr-booking-room-wrapper">
                         <div className="gdlr-item gdlr-room-item gdlr-medium-room ">
                         <div className="gdlr-ux gdlr-medium-room-ux">
-                        <div className="gdlr-room-thumbnail"><Link to={''}><img src="https://demo.goodlayers.com/hotelmaster/dark/wp-content/uploads/2015/03/photodune-3973259-hotel-room-m-400x300.jpg" alt="" width={400} height={300} /></Link></div>
+                        <div className="gdlr-room-thumbnail"><Link to={''}>
+                        <img src={room.images?.[0] || room.room_category?.image ||  "frontend/anh/default-room.png"} alt="" width={400} height={300} /></Link></div>
                         <div className="gdlr-room-content-wrapper">
                         <h3 className="gdlr-room-title">
                         <Link to={''} style={{ textDecoration: 'none' }}>
-                          <span className="room-name-bk2">{room.room_name}</span>
+                          <span className="room-name-bk2">{room.room_category.room_type}</span>
                         </Link>
                         </h3>
                         <div className="gdlr-hotel-room-info">
-                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Giường</span><span className="gdlr-tail">2 giường</span></div>
-                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Người lớn</span><span className="gdlr-tail">2</span></div>
-                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Trẻ em</span><span className="gdlr-tail">1</span></div>
+                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Diện tích</span><span className="gdlr-tail">{room.room_category.size} m²</span></div>
+                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Người lớn</span><span className="gdlr-tail">{room.room_category.adult} người</span></div>
+                        <div className="gdlr-room-info"><i className="fa fa-check-square-o icon-check" /><span className="gdlr-head">Trẻ em</span><span className="gdlr-tail">{room.room_category.children} người</span></div>
                         <div className="clear" /></div>
-                        <div className="gdlr-room-content">Mô tả về phòng ...</div>
+                        <div className="gdlr-room-content" style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}>{room.description}</div>
                         <button
                                   className="gdlr-room-selection gdlr-button with-border"
                                   onClick={() => handleRoomSelection(room.id)} 
@@ -210,9 +217,9 @@ function Booking2() {
                           Chọn phòng này
                         </button>
                         <div className="gdlr-room-price">
-                          <span className="gdlr-head">Giá chỉ</span><span className="gdlr-tail">${room.price} / Đêm</span>
+                          <span className="gdlr-head">Giá chỉ</span><span className="gdlr-tail">{room.price} VNĐ/ Đêm</span>
                           <div className="gdlr-price-break-down">
-                              <span>* Xem giảm giá</span>
+                              {/* <span>* Xem giảm giá</span> */}
                               <div className="price-breakdown-wrapper">
                                 <div className="price-breakdown-close" />
                                     <div className="price-breakdown-content">

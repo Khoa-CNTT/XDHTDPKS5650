@@ -32,9 +32,31 @@ function Section1() {
       </SwiperSlide>
       <SwiperSlide>
         <img src="/frontend/anh/hoboi.png" alt="Slide 1" style={{ width: '100%', height: 'auto'}} />
+        <div className="intro-text" style={{
+              position: 'absolute',
+              bottom: '350px',
+              left: '300px',
+              padding: '20px',
+              color: 'white'
+            }}
+          >
+          <p className="line line-1">Hồ bơi vô cực</p>
+          <p className="line line-4">Hiện đại</p>
+        </div>
       </SwiperSlide>
       <SwiperSlide>
         <img src="/frontend/anh/nhahang.png" alt="Slide 1" style={{ width: '100%', height: 'auto'}} />
+        <div className="intro-text" style={{
+              position: 'absolute',
+              bottom: '350px',
+              left: '300px',
+              padding: '20px',
+              color: 'white'
+            }}
+          >
+          <p className="line line-1">Buffet ăn tối</p>
+          <p className="line line-4">Phục vụ đầy đủ món Á - ÂU mỗi sáng và tối</p>
+        </div>
       </SwiperSlide>
       </Swiper>
     </section>

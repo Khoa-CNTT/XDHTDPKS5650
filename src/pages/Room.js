@@ -65,32 +65,38 @@ function Room() {
                           <div className="gdlr-ux gdlr-classic-room-ux">
                             <div className="gdlr-room-thumbnail">
                               <Link to={`/room-detail/${room.id}`}>
-                                <img src={room.room_category['image'] || "frontend/anh/default-room.png"} alt={room.name} width={700} height={400} />
+                                <img src={room.images?.[0] || room.room_category?.image ||  "frontend/anh/default-room.png"} alt={room.name} width={700} height={400} 
+                                  style={{
+                                    objectFit: "cover",
+                                    width: "700px",
+                                    height: "250px",
+                                  }}
+                                />
                               </Link>
                             </div>
                             <h3 className="gdlr-room-title">
-                              <Link to={`/room-detail/${room.id}`}>{room.name}</Link>
+                              <Link to={`/room-detail/${room.id}`}>{room.room_category.room_type}</Link>
                             </h3>
                             <div className="gdlr-hotel-room-info">
                               <div className="gdlr-room-info">
                                 <i className="fa fa-check-square-o icon-check" />
-                                <span className="gdlr-head">Giường</span>
-                                <span className="gdlr-tail">{room.bed_type || "1 giường đôi"}</span>
+                                <span className="gdlr-head">Diện tích</span>
+                                <span className="gdlr-tail">{room.room_category.size} m²</span>
                               </div>
                               <div className="gdlr-room-info">
                                 <i className="fa fa-check-square-o icon-check" />
-                                <span className="gdlr-head">Người tối đa</span>
-                                <span className="gdlr-tail">{room.max_people || "2"}</span>
+                                <span className="gdlr-head">Người lớn</span>
+                                <span className="gdlr-tail">{room.room_category.adult} người</span>
+                              </div>
+                              <div className="gdlr-room-info">
+                                <i className="fa fa-check-square-o icon-check" />
+                                <span className="gdlr-head">Trẻ em</span>
+                                <span className="gdlr-tail">{room.room_category.children} người</span>
                               </div>
                               <div className="gdlr-room-info">
                                 <i className="fa fa-check-square-o icon-check" />
                                 <span className="gdlr-head">View</span>
-                                <span className="gdlr-tail">{room.view || "Thành phố"}</span>
-                              </div>
-                              <div className="gdlr-room-info">
-                                <i className="fa fa-check-square-o icon-check" />
-                                <span className="gdlr-head">Wifi</span>
-                                <span className="gdlr-tail">Có</span>
+                                <span className="gdlr-tail">{room.view}</span>
                               </div>
                               <div className="gdlr-room-price">
                                 <span className="gdlr-head">Giá từ</span>

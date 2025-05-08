@@ -53,6 +53,16 @@ body, h1, h2, h3, h4, h5, h6, p, a {
 .msp-cn-1-8 { font-family:"Open Sans";font-weight:300;font-size:38px;letter-spacing:2px;line-height:normal;color:#ffffff; } 
 .msp-cn-1-9 { font-family:"Merriweather";font-weight:normal;font-size:15px;letter-spacing:1px;line-height:25px;color:#bdbdbd; } 
 
+/* custom room */
+.gdlr-room-title a{
+  text-decoration: none;
+  color: #ad977b !important;
+}
+
+.gdlr-room-title a:hover{
+  color: #fafafa !important;
+}
+
 /* custom room detail */
 .gdlr-room-title-wrapper {
   display: flex;
@@ -125,6 +135,17 @@ span.gdlr-tail.price{
 
 .gdlr-room-info.detail .gdlr-tail{
   color: #bdbcbc;
+}
+
+.gdlr-gallery-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 250px !important;
+  width: 300px !important;
+  padding: 10px;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: nowrap;
 }
 
 /* CSS cho user-icon-wrapper */
@@ -538,6 +559,7 @@ div.swiper-button-prev {
 .intro-text .line-3 {
   font-size: 4rem;
   font-weight: 700;
+  letter-spacing: 0.3rem;
   margin-bottom: 0.5rem;
 }
 
