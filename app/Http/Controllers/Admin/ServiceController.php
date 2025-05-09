@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
 {
+    // Kiểm tra quyền truy cập
     public function hasPermission($featureId)
     {
         $user = Auth::user();
@@ -37,56 +38,110 @@ class ServiceController extends Controller
 
         return in_array($featureId, $allowedFeatureIds);
     }
+
+    // Hiển thị danh sách dịch vụ (API)
     public function index()
     {
         $data = Service::all();
-        return response()->json([$data]);
+        return response()->json(['services' => $data]);
     }
-    public function create()
+
+    // Hiển thị danh sách dịch vụ (Web)
+    public function indexWeb()
     {
-        //
+        $services = Service::all(); // Lấy tất cả dịch vụ
+        return view('admin.service', compact('services')); // Trả về view với dữ liệu
     }
+
+    // Thêm mới dịch vụ (API)
     public function store(ServiceRequest $request)
     {
-        $featureId = 4; // create ser
+        $featureId = 4; // Create service
 
         if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
+            return response()->json([
+                'error' => 'You are not allowed to use this function'
             ], 403);
         }
+
         $data = $request->all();
-        if(Service::create($data)){
+        if (Service::create($data)) {
             return response()->json(["Create service success."]);
-        }else{
+        } else {
             return response()->json(["Create service error."]);
         }
     }
-    public function show(string $id)
+
+    // Thêm mới dịch vụ (Web)
+    public function storeWeb(ServiceRequest $request)
     {
-        //
-    }
-    public function edit(string $id)
-    {
-        //
-    }
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-    public function destroy(string $id)
-    {
-        $featureId = 5; // Del ser
+        $featureId = 4; // Create service
 
         if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
+            return redirect()->back()->with('error', 'You are not allowed to use this function.');
+        }
+
+        $data = $request->all();
+        if (Service::create($data)) {
+            return redirect()->route('admin.service.indexWeb')->with('success', 'Service created successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to create service.');
+        }
+    }
+
+    // Hiển thị form chỉnh sửa dịch vụ (Web)
+
+
+    // Cập nhật dịch vụ (Web)
+    public function updateWeb(ServiceRequest $request, string $id)
+    {
+        $featureId = 5; // Update service
+
+        if (!$this->hasPermission($featureId)) {
+            return redirect()->back()->with('error', 'You are not allowed to use this function.');
+        }
+
+        $data = $request->all();
+        $service = Service::find($id); // Tìm dịch vụ theo ID
+        if ($service && $service->update($data)) {
+            return redirect()->route('admin.service.indexWeb')->with('success', 'Service updated successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to update service.');
+        }
+    }
+
+    // Xóa dịch vụ (API)
+    public function destroy(string $id)
+    {
+        $featureId = 5; // Delete service
+
+        if (!$this->hasPermission($featureId)) {
+            return response()->json([
+                'error' => 'You are not allowed to use this function'
             ], 403);
         }
-        if(Service::where('id',$id)->delete()){
+
+        if (Service::where('id', $id)->delete()) {
             return response()->json(["Delete service success."]);
-        }else{
+        } else {
             return response()->json(["Delete service error."]);
+        }
+    }
+
+    // Xóa dịch vụ (Web)
+    public function destroyWeb(string $id)
+    {
+        $featureId = 5; // Delete service
+
+        if (!$this->hasPermission($featureId)) {
+            return redirect()->back()->with('error', 'You are not allowed to use this function.');
+        }
+
+        $service = Service::find($id); // Tìm dịch vụ theo ID
+        if ($service && $service->delete()) {
+            return redirect()->route('admin.service.indexWeb')->with('success', 'Service deleted successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to delete service.');
         }
     }
 }

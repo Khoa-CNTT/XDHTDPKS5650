@@ -9,6 +9,7 @@ use App\Models\RoomType;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CateRoomController extends Controller
 {
@@ -42,29 +43,21 @@ class CateRoomController extends Controller
         $data = RoomType::all();
         return response()->json([$data]);
     }
-    public function create()
-    {
-        //
-    }
     public function store(CateRoomRequest $request)
     {
         $featureId = 1; // create cate room
 
         if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
+            return response()->json([
+                'error' => 'You are not allowed to use this function'
             ], 403);
         }
         $data = $request->all();
-        if(RoomType::create($data)){
+        if (RoomType::create($data)) {
             return response()->json(["Create Room type success."]);
-        }else{
+        } else {
             return response()->json(["Create Room type error."]);
         }
-    }
-    public function show(string $id)
-    {
-        //
     }
     public function edit(string $id)
     {
@@ -76,15 +69,16 @@ class CateRoomController extends Controller
         $featureId = 2; // update cate room
 
         if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
+            return response()->json([
+                'error' => 'You are not allowed to use this function'
             ], 403);
         }
+        $type = RoomType::find($id);
         $data = $request->all();
         $type = RoomType::findOrFail($id);
-        if($type->update($data)){
+        if ($type->update($data)) {
             return response()->json(["Edit Room type success."]);
-        }else{
+        } else {
             return response()->json(["Edit Room type error."]);
         }
     }
@@ -93,14 +87,31 @@ class CateRoomController extends Controller
         $featureId = 3; // Del Cate Room
 
         if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
+            return response()->json([
+                'error' => 'You are not allowed to use this function'
             ], 403);
         }
-        if(RoomType::where('id',$id)->delete()){
+        if (RoomType::where('id', $id)->delete()) {
             return response()->json(["Delete Room type success."]);
-        }else{
+        } else {
             return response()->json(["Delete Room type error."]);
+        }
+    }
+    public function destroyWeb(string $id)
+    {
+        // Tìm loại phòng theo ID
+        $type = RoomType::findOrFail($id);
+
+        // Xóa ảnh nếu có
+        if ($type->image && Storage::exists('public/' . $type->image)) {
+            Storage::delete('public/' . $type->image);
+        }
+
+        // Xóa loại phòng
+        if ($type->delete()) {
+            return redirect()->route('admin.cateroom.indexWeb')->with('success', 'Room type deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to delete room type.');
         }
     }
 }

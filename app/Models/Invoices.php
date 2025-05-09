@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Invoices extends Model
 {
     use HasFactory;
-    protected $table='invoices';
+    protected $table = 'invoices';
     protected $fillable = [
         'id_user',
         'id_room',
-        'id_order',
+        // 'id_order',
         'firstName',
         'lastName',
         'email',
@@ -22,4 +22,18 @@ class Invoices extends Model
         'total',
         'type'
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'id_room');
+    }
+
+    // public function order()
+    // {
+    //     return $this->belongsTo(::class, 'id_order');
+    // }
 }

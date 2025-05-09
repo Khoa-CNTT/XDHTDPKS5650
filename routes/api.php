@@ -11,7 +11,7 @@ use App\HTTP\Controllers\Admin\ProductController;
 use App\Http\Controllers\Staff\CommentController;
 use App\Http\Controllers\InvoicesController;
 // Staff
-use App\Http\Controllers\Staff\BlogController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Staff\RoomController;
 use App\Models\Blog;
 
@@ -60,11 +60,11 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     // Category product
     Route::get('/list-cate-product',[ProductController::class,'listCate']);
     Route::post('/create-cate-product',[ProductController::class,'storeCate']);
+    Route::post('/update-cate-product',[ProductController::class,'updateCate']);
     Route::delete('/delete-cate-product/{id}',[ProductController::class,'destroyCate']);
     // Product
     Route::get('/list-product',[ProductController::class,'index']);
     Route::post('/create-product',[ProductController::class,'store']);
-    Route::get('/edit-product/{id}',[ProductController::class,'edit']);
     Route::post('/edit-product/{id}',[ProductController::class,'update']);
     Route::put('/change-status', [ProductController::class, 'change']);
     Route::delete('/delete-product/{id}',[ProductController::class,'destroy']);

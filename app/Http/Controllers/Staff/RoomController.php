@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\RoomRequest;
 use Illuminate\Http\Request;
 use App\Models\Room;
+use App\Models\RoomType;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
-    
+
     public function getData()
     {
         $data = Room::all();
@@ -20,11 +21,11 @@ class RoomController extends Controller
             'room' => $data
         ]);
     }
+
     public function store(RoomRequest $request)
     {
         $data = $request->all();
-        if(Room::create($data))
-        {
+        if (Room::create($data)) {
             return response()->json([
                 'status'    =>  true,
                 'message'   =>  'Create room success!'
@@ -36,6 +37,7 @@ class RoomController extends Controller
             ]);
         }
     }
+
     public function edit(string $id)
     {
         $data = Room::find($id);
@@ -45,8 +47,7 @@ class RoomController extends Controller
     {
         $data   = $request->all();
 
-        if(Room::find($request->id)->update($data))
-        {
+        if (Room::find($request->id)->update($data)) {
             return response()->json([
                 'status'    =>  true,
                 'message'   =>  'Update room success!'
@@ -58,10 +59,10 @@ class RoomController extends Controller
             ]);
         }
     }
+
     public function destroy($id)
     {
-        if(Room::find($id)->delete())
-        {
+        if (Room::find($id)->delete()) {
             return response()->json([
                 'status'    =>  true,
                 'message'   =>  'Delete room success!'
@@ -73,11 +74,13 @@ class RoomController extends Controller
             ]);
         }
     }
-    public function logout(){
+    
+    public function logout()
+    {
         auth()->user()->tokens()->delete();
         return response()->json(
             [
-                'message'=>'success'
+                'message' => 'success'
             ],
             200
         );

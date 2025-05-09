@@ -90,13 +90,6 @@ class ProductController extends Controller
     }
     public function update(ProductRequest $request, string $id)
     {
-        $featureId = 7; // Update Cate Pr
-
-        if (!$this->hasPermission($featureId)) {
-        return response()->json([
-            'error' => 'You are not allowed to use this function'
-            ], 403);
-        }
         $data = $request->all();
         $product = Product::findOrFail($id);
         if($product->update($data)){
@@ -105,7 +98,24 @@ class ProductController extends Controller
             return response()->json(["Edit product error."]);
         }
     }
-    public function destroy(string $id)
+    public function updateCate(ProductRequest $request, string $id)
+    {
+        $featureId = 7; // update Cate Pr
+
+        if (!$this->hasPermission($featureId)) {
+        return response()->json([
+            'error' => 'You are not allowed to use this function'
+            ], 403);
+        }
+        $data = $request->all();
+        $productcate = ProductCate::findOrFail($id);
+        if($productcate->update($data)){
+            return response()->json(["Edit product success."]);
+        }else{
+            return response()->json(["Edit product error."]);
+        }
+    }
+    public function destroyCate(string $id)
     {
         $featureId = 8; // Del Cate Pr
 
@@ -115,17 +125,17 @@ class ProductController extends Controller
             ], 403);
         }
         if(ProductCate::where('id',$id)->delete()){
-            return response()->json(["Delete product success."]);
-        }else{
-            return response()->json(["Delete product error."]);
-        }
-    }
-    public function destroyCate(string $id)
-    {
-        if(ProductCate::where('id',$id)->delete()){
             return response()->json(["Delete category success."]);
         }else{
             return response()->json(["Delete category error."]);
+        }
+    }
+    public function destroy(string $id)
+    {
+        if(Product::where('id',$id)->delete()){
+            return response()->json(["Delete product success."]);
+        }else{
+            return response()->json(["Delete product error."]);
         }
     }
     public function change(string $id)
@@ -152,4 +162,6 @@ class ProductController extends Controller
         $data = ProductCate::all();
         return response()->json([$data]);
     }
+
+    
 }

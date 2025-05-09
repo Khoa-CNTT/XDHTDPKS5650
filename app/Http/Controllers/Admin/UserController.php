@@ -111,12 +111,12 @@ class UserController extends Controller
         // if(!empty($file)){
         //     $data['avatar'] = $file->getClientOriginalName();
         // }
-        if($data['password']!='password'){
+        if ($data['password'] != 'password') {
             $data['password'] = bcrypt($data['password']);
         } else {
             $data['password'] = $user->password;
         }
-        if($user->update($data)){
+        if ($user->update($data)) {
             // if(!empty($file)){
             //     $file->move('upload/user/avatar',$file->getClientOriginalName());
             // }
@@ -160,21 +160,27 @@ class UserController extends Controller
             return response()->json(["Create Staff error."]);
         }
     }
+
     public function staffList()
     {
         $data = Staff::all();
-        return response()->json([$data]);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
     }
+
     public function staffUpdate(StaffRequest $request, string $id)
     {
         $data = $request->all();
         $type = Staff::findOrFail($id);
-        if($type->update($data)){
+        if ($type->update($data)) {
             return response()->json(["Update success."]);
-        }else{
+        } else {
             return response()->json(["Update error."]);
         }
     }
+    
     public function destroy(string $id)
     {
         if (Staff::where('id', $id)->delete()) {
@@ -183,4 +189,6 @@ class UserController extends Controller
             return response()->json(["Delete Staff error."]);
         }
     }
+
+
 }
