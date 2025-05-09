@@ -18,7 +18,9 @@ use App\Models\RoomType;
 use App\Models\RentalDetail;
 use App\Models\Invoices;
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -79,96 +81,186 @@ class CustomerController extends Controller
             200
         );
     }
+    public function profile()
+    {
+        $user = Auth::user();
+        return response()->json(
+            [
+                'user' => $user
+            ],
+            200
+        );
+    }
     public function chooseRoom(Request $request)
     {
-        $quantity = $request->quantity;
+        $quantity  = $request->quantity;
         $IssueDate = Carbon::parse($request->IssueDate);
-        $DueDate = Carbon::parse($request->DueDate);
-        $data['start'] = $IssueDate->format('Y/m/d');
-        $adult = $request->adult;
-        $children = $request->children;
-        $roomType = RoomType::where('Adult', $adult)
-            ->where('Children', $children)
-            ->first();
-        if (!$roomType) {
-            return response()->json(['message' => 'Không tìm thấy loại phòng phù hợp'], 404);
-        }
-        $activeRooms = Room::where('id_room_categories', $roomType->id)
-            ->where('status', 1)
+        $DueDate   = Carbon::parse($request->DueDate);
+        $adult     = $request->adult;
+        $children  = $request->children;
+
+        $roomTypes = RoomType::where('Adult', '>=', $adult)
+            ->whereRaw('(Children + (Adult - ?)) >= ?', [$adult, $children])
             ->get();
 
-        $availableRooms = [];
-        foreach ($activeRooms as $room) {
-            $conflictFound = false;
-            while ($data['start'] <= $DueDate) {
-                $rentalConflict = RentalDetail::where('id_room', $room->id)
-                    ->where('date', $data['start'])
-                    ->where('status', 1)
-                    ->exists();
-                if ($rentalConflict) {
-                    $conflictFound = true;
-                    break;
-                }
-                $data['start'] = Carbon::parse($data['start'])->addDay();  //sửa
-            }
-            if (!$conflictFound) {
-                $availableRooms[] = $room;
-            }
-        }
-        if (count($availableRooms) < $quantity) {
-            return response()->json(['message' => 'Không đủ phòng còn trống'], 404);
+        if ($roomTypes->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy loại phòng phù hợp'], 404);
         }
 
-        return response()->json([
-            $activeRooms,
-            $availableRooms
-        ]);
+        $availableRooms = [];
+
+        foreach ($roomTypes as $roomType) {
+            $activeRooms = Room::where('id_room_categories', $roomType->id)
+                ->where('status', 1)
+                ->with('roomCategory')
+                ->get();
+
+            foreach ($activeRooms as $room) {
+                $conflict = false;
+                $currentDate = $IssueDate->copy();
+
+                while ($currentDate <= $DueDate) {
+                    $isBooked = RentalDetail::where('id_room', $room->id)
+                        ->where('date', $currentDate->format('Y-m-d'))
+                        ->where('status', 0)
+                        ->exists();
+
+                    if ($isBooked) {
+                        $conflict = true;
+                        break;
+                    }
+                    $currentDate->addDay();
+                }
+
+                if (! $conflict) {
+                    $availableRooms[] = $room;
+                }
+            }
+        }
+
+        if (count($availableRooms) < $quantity) {
+            return response()->json(['message' => 'Không đủ phòng trống cho yêu cầu'], 400);
+        }
+
+        return response()->json($availableRooms);
     }
-    public function booking(Request $request)
+    public function priceTotal(Request $request)
     {
-        $id_user = Auth()->user()->id;
-        $id_room = $request->id_room;
-        $id_order = $request->id_order;
         $IssueDate = Carbon::parse($request->IssueDate);
-        $receive = $IssueDate->format('Y/m/d');
-        $DueDate = Carbon::parse($request->DueDate);
-        $back = $DueDate->format('Y/m/d');
-        $firstName = $request->firstName;
-        $lastName = $request->lastName;
-        $email = $request->email;
-        $phone = $request->phone;
-        $paymentMethod = $request->paymentMethod ?? 1;
-        $days = $IssueDate->diffInDays($DueDate);
+        $DueDate   = Carbon::parse($request->DueDate);
+        $id_room   = $request->id_room;
+        $moreService = $request->more_service;
+
+        $days = max(1, $IssueDate->diffInDays($DueDate));
 
         $room = Room::where('id', $id_room)
             ->select('id', 'price')
             ->first();
+
+        if (!$room) {
+            return response()->json(['message' => 'Phòng không tồn tại'], 404);
+        }
+
         $totalPrice = $room->price * $days;
 
-        Invoices::create([
-            'id_user'       => $id_user,
-            'id_room'       => $id_room,
-            'id_order'       => $id_order,
-            'firstName'     => $firstName,
-            'lastName'      => $lastName,
-            'email'         => $email,
-            'phone'         => $phone,
-            'paymentMethod' => $paymentMethod,
-            'note'          => $request->note,
-            'total'         => $totalPrice,
-            'type'          => 'Room',
-            'created_at'    => now(),
-            'updated_at'    => now(),
-        ]);
+        $serviceTotal = 0;
+        if (!empty($moreService)) {
+            if (is_string($moreService)) {
+                $moreService = json_decode($moreService, true);
+            }
 
-        RentalDetail::where('id_room', $id_room)
-            ->whereBetween('date', [$receive, $back])
-            ->update(['status' => 0]);
+            $services = Service::whereIn('id', $moreService)
+                ->select('id', 'price')
+                ->get();
+
+            foreach ($services as $service) {
+                $serviceTotal += $service->price;
+            }
+        }
+
+        $VAT =  $totalPrice * 0.08;
+        $grandTotal = $totalPrice + $VAT + $serviceTotal;
 
         return response()->json([
-            'message' => 'Đặt phòng thành công',
-            'total_price' => $totalPrice,
+            'total_price' => $grandTotal,
+            'room_price' => $totalPrice,
+            'vat' => $VAT,
+            'service_price' => $serviceTotal,
+            'days' => $days,
         ]);
+    }
+    public function booking(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:15',
+            'id_room' => 'required|integer|exists:rooms,id',
+            'IssueDate' => 'required|date',
+            'DueDate' => 'required|date|after:IssueDate',
+        ]);
+
+        $name = $request->name;
+        $address = $request->address ?? null;
+        $id_user = Auth()->user()->id;
+        $id_room = $request->id_room ?? null;
+        $id_order = $request->id_order ?? null;
+        $IssueDate = Carbon::parse($request->IssueDate);
+        $receive = $IssueDate->format('Y/m/d');
+        $DueDate = Carbon::parse($request->DueDate);
+        $back = $DueDate->format('Y/m/d');
+        $email = $request->email;
+        $phone = $request->phone;
+        $note = $request->note ?? null;
+        $paymentMethod = $request->paymentMethod ?? 1;
+        $moreService = $request->more_service ?? [];
+        $total = $request->total ?? 0;
+
+        DB::beginTransaction();
+        try {
+            $invoice = Invoices::create([
+                'code'          => $this->generateOrderCode(),
+                'name'           => $name,
+                'issueDate'    => $receive,
+                'dueDate'      => $back,
+                'address'        => $address,
+                'id_user'       => $id_user,
+                'id_room'       => $id_room,
+                'id_order'       => $id_order,
+                'email'         => $email,
+                'phone'         => $phone,
+                'paymentMethod' => $paymentMethod,
+                'note'          => $note,
+                'total'         => $total,
+                'type'          => 'Room',
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            RentalDetail::where('id_room', $id_room)
+                ->whereBetween('date', [$receive, $back])
+                ->update(['status' => 0]);
+
+            if (is_string($moreService)) {
+                $moreService = json_decode($moreService, true);
+            }
+
+            if (!empty($moreService)) {
+                $invoice->services()->attach($moreService);
+            }
+            DB::commit();
+            return response()->json([
+                'message' => 'Đặt phòng thành công',200
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Đặt phòng thất bại',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+        
     }
     public function order(Request $request)
     {
@@ -181,16 +273,14 @@ class CustomerController extends Controller
             ], 422);
         }
 
-        $firstName      = $request->input('firstName');
-        $lastName       = $request->input('lastName');
+        $name           = $request->input('name');
         $note           = $request->input('note');
         $email          = $request->input('email');
         $phone          = $request->input('phone');
         $paymentMethod  = $request->input('paymentMethod', 1);
         $id_order       = $this->generateOrderCode();
-        $id_user        = auth()->id(); // Nếu chưa đăng nhập thì cần kiểm tra
+        $id_user        = auth()->id();
 
-        // Tính tổng tiền
         $total = 0;
         foreach ($products as $product) {
             $quantity = (int) $product['quantity'] ?? 1;
@@ -198,8 +288,8 @@ class CustomerController extends Controller
             $total += $price * $quantity;
         }
 
-        // Tạo invoice
         $invoice = Invoices::create([
+            'code'          => $this->generateOrderCode(),
             'id_user'       => $id_user,
             'id_order'      => $id_order,
             'id_room'       => null,
@@ -230,6 +320,18 @@ class CustomerController extends Controller
             'id_order'    => $id_order,
             'total'       => $total,
             'customer'    => $firstName . ' ' . $lastName
+        ]);
+    }
+    public function history(Request $request)
+    {
+        $userId = auth()->id();
+        $invoices = Invoices::where('id_user', $userId)
+            ->with('room.roomCategory')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'invoices' => $invoices
         ]);
     }
     function generateOrderCode() {
