@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate , useLocation} from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 
@@ -69,6 +69,11 @@ function Header() {
   const toggleMenu = () => {
     setShowMenu((prev) => !prev);
   };
+
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (path) => currentPath === path;
   return (
     <>
       <header className="gdlr-header-wrapper">
@@ -89,23 +94,32 @@ function Header() {
             </div>
           </div>
           <div className="gdlr-navigation-wrapper">
-            <nav className="gdlr-navigation" id="gdlr-main-navigation" role="navigation">
-              <ul id="menu-main-menu-1" className="sf-menu gdlr-main-menu">
-                <li className="menu-item current-menu-item menu-item current-menu-item  gdlr-normal-menu"><Link to="/">Trang chủ</Link></li>
-                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu"><Link to="/AboutUs" className="sf-with-ul-pre">Cơ sở vật chất</Link>
-                  <ul className="sub-menu">
-                    <li className="menu-item"><Link to="about-us.html">Tiện ích &amp; Dịch vụ</Link></li>                                      
-                  </ul>
-                </li>
-                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu">
-                <Link to="/Room" className="sf-with-ul-pre">Phòng</Link>
-                </li>
+            {/* <nav className="gdlr-navigation" id="gdlr-main-navigation" role="navigation"> */}
+            <nav className="gdlr-navigation" role="navigation">
+              <ul id="menu-main-menu-1" className="sf-menu gdlr-main-menu menu">
+                {/* <li className="menu-item current-menu-item menu-item current-menu-item  gdlr-normal-menu"><Link to="/">Trang chủ</Link></li>
+                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu"><Link to="/AboutUs" className="sf-with-ul-pre">Cơ sở vật chất</Link></li>
+                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu"><Link to="/Room" className="sf-with-ul-pre">Phòng</Link></li>
                 <li className="menu-item menu-item gdlr-normal-menu"><Link to="/Booking">Đặt lịch</Link></li>
-                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu">
-                <Link to="/Blog" className="sf-with-ul-pre">Blog</Link>
+                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu"><Link to="/Blog" className="sf-with-ul-pre">Blog</Link></li>
+                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu"><Link to="/Menu">Menu</Link></li> */}
+                <li className={`menu-item gdlr-normal-menu ${isActive('/') ? 'active-link' : ''}`}>
+                  <Link to="/">Trang chủ</Link>
                 </li>
-                <li className="menu-item menu-item-has-childrenmenu-item menu-item-has-children gdlr-normal-menu">
-                <Link to="/Menu">Menu</Link>
+                <li className={`menu-item gdlr-normal-menu ${isActive('/AboutUs') ? 'active-link' : ''}`}>
+                  <Link to="/AboutUs">Cơ sở vật chất</Link>
+                </li>
+                <li className={`menu-item gdlr-normal-menu ${isActive('/Room') ? 'active-link' : ''}`}>
+                  <Link to="/Room">Phòng</Link>
+                </li>
+                <li className={`menu-item gdlr-normal-menu ${isActive('/Booking') ? 'active-link' : ''}`}>
+                  <Link to="/Booking">Đặt lịch</Link>
+                </li>
+                <li className={`menu-item gdlr-normal-menu ${isActive('/Blog') ? 'active-link' : ''}`}>
+                  <Link to="/Blog">Blog</Link>
+                </li>
+                <li className={`menu-item gdlr-normal-menu ${isActive('/Menu') ? 'active-link' : ''}`}>
+                  <Link to="/Menu">Menu</Link>
                 </li>
               </ul>
             </nav>

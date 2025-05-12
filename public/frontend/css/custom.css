@@ -949,3 +949,117 @@ tbody.history-table-body td {
 #content-section-2{
   text-align: center;
 }
+
+.active-link a {
+  position: relative !important;
+  display: inline-block !important;
+  padding-bottom: 4px !important;
+}
+
+.active-link a::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 2px !important;
+  background-color: rgb(184, 184, 127);
+}
+
+.country-profile{
+    flex: 1 1 auto;
+    padding: 9px 14px;
+    border-radius: 7px;
+    border: none;
+    font-size: 1rem;
+    background: #232834;
+    color: #e8f0fc;
+    box-shadow: 0 0.5px 2px #0002;
+    font-family: inherit;
+    outline: 2px solid transparent;
+    transition: outline .13s, box-shadow .13s;
+}
+
+.profile-up-img {
+  background-color: #1a1a1a; /* Màu nền tối */
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.space-x-4 {
+  gap: 16px; /* Khoảng cách giữa các phần tử */
+}
+
+label {
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+input[type="radio"] {
+  margin-right: 8px;
+}
+
+input[type="file"],
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+input[type="file"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: #4e89f0;
+  box-shadow: 0 0 8px rgba(78, 137, 240, 0.6);
+}
+
+input[type="text"]::placeholder {
+  color: #bbb;
+}
+
+input[type="file"] {
+  padding-left: 8px;
+}
+
+input[type="radio"]:checked {
+  background-color: #4e89f0;
+  border-color: #4e89f0;
+}
+
+input[type="radio"]:checked + label {
+  color: #4e89f0;
+}
+
+input[type="radio"]:not(:checked) {
+  background-color: #555;
+}
+
+input[type="radio"]:not(:checked) + label {
+  color: #aaa;
+}
+
+.email-profile{
+  background: #92999f !important;
+}
+
+.error-profile{
+  color: red !important;
+  padding-left: 110px;
+}

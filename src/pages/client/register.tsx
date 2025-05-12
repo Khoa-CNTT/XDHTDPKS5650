@@ -7,24 +7,29 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordAgain, setPasswordAgain] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [country, setCountry] = useState("");
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  // const [avatar, setAvatar] = useState<File | null>(null);
+  // const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [avatarMethod, setAvatarMethod] = useState<"file" | "link">("file");
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<{
     name?: string;
     email?: string;
     password?: string;
+    passwordAgain?: string;
     phone?: string;
     address?: string;
     country?: string;
     avatar?: string;
   }>({});
-  const [countries, setCountries] = useState<{ [key: string]: string }>({}); // State để lưu danh sách quốc gia
+  const [countries, setCountries] = useState<{ [key: string]: string }>({});
 
   // Hàm validate
   function validate() {
@@ -34,12 +39,25 @@ function Register() {
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.email = "Email không đúng định dạng.";
     if (!password) errs.password = "Vui lòng nhập mật khẩu.";
     else if (password.length < 8) errs.password = "Mật khẩu tối thiểu 8 ký tự.";
+    if(passwordAgain !== password) errs.passwordAgain = "Nhập lại mật khẩu không trùng khớp";
     if (!phone) errs.phone = "Vui lòng nhập số điện thoại.";
     else if (!/^[0-9\+\-\s]+$/.test(phone)) errs.phone = "Chỉ nhập số, +, -, khoảng trắng.";
     if (!address) errs.address = "Vui lòng nhập địa chỉ.";
     if (!country) errs.country = "Vui lòng chọn quốc gia.";
     return errs;
   }
+
+  
+
+  // const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setAvatar(file);
+  //     setAvatarUrl(URL.createObjectURL(file));
+  //   } else {
+  //     setAvatar(null);
+  //   }
+  // };
 
   // Hàm xử lý thay đổi avatar
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +93,8 @@ function Register() {
       formData.append("country", country);
       if (avatar) {
         formData.append("avatar", avatar);
+      } else if (avatarUrl.trim() !== "") {
+        formData.append("avatar", avatarUrl);
       }
 
       console.log("FormData chuẩn bị gửi:", Array.from(formData.entries()));
@@ -111,7 +131,7 @@ function Register() {
       try {
         const res = await fetch("http://127.0.0.1:8000/api/country");
         const data = await res.json();
-        setCountries(data); // Lưu danh sách quốc gia vào state
+        setCountries(data);
       } catch (err) {
         console.error("Lỗi khi lấy danh sách quốc gia:", err);
       }
@@ -190,6 +210,27 @@ function Register() {
             </div>
             <div className="input-group">
               <input
+                id="register-password-again"
+                type="password"
+                value={passwordAgain}
+                onChange={(e) => {
+                  setPasswordAgain(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, passwordAgain: undefined }));
+                }}
+                required
+                className={`w-full rounded bg-zinc-900 border ${
+                  fieldErrors.passwordAgain ? "border-red-600" : "border-zinc-700"
+                } px-3 py-2 text-zinc-100 focus:outline-none focus:ring-2 ${
+                  fieldErrors.passwordAgain ? "focus:ring-red-500" : "focus:ring-blue-600"
+                }`}
+                placeholder="Nhập lại mật khẩu..."
+              />
+              {fieldErrors.passwordAgain && (
+                <div className="text-xs text-red-400 mt-1">{fieldErrors.passwordAgain}</div>
+              )}
+            </div>
+            <div className="input-group">
+              <input
                 id="register-phone"
                 type="tel"
                 value={phone}
@@ -255,7 +296,7 @@ function Register() {
                 <div className="text-xs text-red-400 mt-1">{fieldErrors.country}</div>
               )}
             </div>
-            <div>
+            {/* <div>
               <label className="block text-zinc-200 mb-1" htmlFor="register-avatar">
                 Avatar
               </label>
@@ -276,7 +317,73 @@ function Register() {
               {fieldErrors.avatar && (
                 <div className="text-xs text-red-400 mt-1">{fieldErrors.avatar}</div>
               )}
+            </div> */}
+            <div>
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="avatarMethod"
+                  value="file"
+                  checked={avatarMethod === "file"}
+                  onChange={() => setAvatarMethod("file")}
+                  className="mr-2"
+                />
+                Chọn ảnh từ máy
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="avatarMethod"
+                  value="link"
+                  checked={avatarMethod === "link"}
+                  onChange={() => setAvatarMethod("link")}
+                  className="mr-2"
+                />
+                Nhập link ảnh
+              </label>
             </div>
+        </div>
+
+        {avatarMethod === "file" && (
+          <div>
+            <label className="block text-zinc-200 mb-1" htmlFor="register-avatar">
+              Chọn ảnh từ máy
+            </label>
+            <input
+              id="register-avatar"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="block text-zinc-100 focus:outline-none"
+            />
+          </div>
+        )}
+
+        {avatarMethod === "link" && (
+          <div>
+            <input
+              id="register-avatar-link"
+              type="text"
+              placeholder="Nhập link ảnh..."
+              value={avatarUrl}
+              onChange={(e) => {
+                setAvatarUrl(e.target.value);
+                setAvatar(null);
+              }}
+              className="w-full rounded bg-zinc-900 border border-zinc-700 px-3 py-2 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+        )}
+
+        {/* Hiển thị ảnh xem trước */}
+        {avatarUrl && (
+          <img
+            src={avatarUrl}
+            alt="Avatar preview"
+            className="w-16 h-16 rounded-full mt-2 border border-zinc-700 object-cover"
+          />
+        )}
             {error && <div className="text-red-400 text-sm text-center">{error}</div>}
             {success && <div className="text-green-400 text-sm text-center">{success}</div>}
             <button
