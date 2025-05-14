@@ -135,6 +135,7 @@ Route::get('/detail-blog/{id}',[TransmitController::class,'detailBlog']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout',[CustomerController::class,'logout']);
     Route::get('/profile',[CustomerController::class,'profile']);
+    Route::post('/update-profile',[CustomerController::class,'updateProfile']);
     Route::get('/history',[CustomerController::class,'history']);
     Route::post('/choose-room',[CustomerController::class,'chooseRoom']);
     Route::post('/price-total',[CustomerController::class,'priceTotal']);

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_user');
             $table->integer('id_room')->nullable();
-            $table->string('id_order')->nullable();//id giỏ hàng cho các sản phẩm đã chọn
+            $table->string('id_order')->nullable();
             $table->string('firstName');
             $table->string('lastName');
             $table->string('email');

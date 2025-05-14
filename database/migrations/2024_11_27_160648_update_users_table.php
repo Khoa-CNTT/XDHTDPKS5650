@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone')->after('password')->nullable();
             $table->string('address')->after('phone')->nullable();
-            $table->string('id_country')->after('address')->nullable();
-            $table->string('avatar')->after('id_country')->nullable();
+            $table->string('country')->after('address')->nullable();
+            $table->string('avatar')->after('country')->nullable();
         });
     }
 

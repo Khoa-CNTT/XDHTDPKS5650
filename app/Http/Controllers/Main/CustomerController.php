@@ -19,8 +19,10 @@ use App\Models\RentalDetail;
 use App\Models\Invoices;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\Order;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
@@ -90,6 +92,45 @@ class CustomerController extends Controller
             ],
             200
         );
+    }
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $fields = ['name', 'password', 'phone', 'address', 'avatar', 'country'];
+        $dataToUpdate = collect($request->only($fields))
+            ->filter(function ($value) {
+                return !is_null($value) && $value !== '';
+            })
+            ->toArray();
+
+        if (array_key_exists('password', $dataToUpdate)) {
+            if (!$request->filled('current_password')) {
+                return response()->json(['message' => 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu.'], 400);
+            }
+
+            if (!Hash::check($request->input('current_password'), $user->password)) {
+                return response()->json(['message' => 'Mật khẩu hiện tại không đúng.'], 400);
+            }
+
+            $dataToUpdate['password'] = Hash::make($dataToUpdate['password']);
+        }
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('avatars', $filename, 'public');
+            $dataToUpdate['avatar'] = $path;
+        } elseif ($request->filled('avatar') && is_string($request->input('avatar'))) {
+            $dataToUpdate['avatar'] = $request->input('avatar');
+        }
+
+        $user->update($dataToUpdate);
+
+        return response()->json([
+            'message' => 'Cập nhật thành công',
+            'user' => $user
+        ]);
     }
     public function chooseRoom(Request $request)
     {
@@ -219,7 +260,7 @@ class CustomerController extends Controller
         DB::beginTransaction();
         try {
             $invoice = Invoices::create([
-                'code'          => $this->generateOrderCode(),
+                'code'          => $this->generateOrderCode('room'),
                 'name'           => $name,
                 'issueDate'    => $receive,
                 'dueDate'      => $back,
@@ -264,63 +305,69 @@ class CustomerController extends Controller
     }
     public function order(Request $request)
     {
-        $products = $request->input('products', []);
+        $validated = $request->validate([
+            'paymentMethod'    => 'required|in:1,2',
+            'products'         => 'required|array|min:1',
+        ]);
 
-        // Validate đơn hàng có sản phẩm
-        if (empty($products)) {
+        $orderCode = $this->generateOrderCode('order');
+        $user    = auth()->user();
+        $products = $validated['products'];
+
+        DB::beginTransaction();
+        try {
+            $invoice = Invoices::create([
+                'code'          => $orderCode,
+                'id_user'       => $user->id,
+                'name'          => $user->name,
+                'issueDate'     => NULL,
+                'dueDate'       => NULL,
+                'address'       => NULL,
+                'id_room'       => NULL,
+                'paymentMethod' => $validated['paymentMethod'],
+                'note'          => $request->note ?? null,
+                'email'         => $user->email,
+                'phone'         => $user->phone,
+                'total'         => 0,
+                'type'          => 'Product',
+            ]);
+
+            $totalAmount = 0;
+
+            foreach ($products as $item) {
+                $product = Product::findOrFail($item['id']);
+                $quantity = $item['quantity'];
+                $lineTotal = $product->price * $quantity;
+
+                Order::create([
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $product->id,
+                    'name'       => $product->name,
+                    'price'      => $product->price,
+                    'quantity'   => $quantity,
+                ]);
+
+                $totalAmount += $lineTotal;
+            }
+
+            $invoice->update(['total' => $totalAmount]);
+
+            DB::commit();
+
             return response()->json([
-                'message' => 'Không có sản phẩm nào trong đơn hàng.'
-            ], 422);
+                'message'     => 'Đặt hàng thành công!',
+                'invoice_id'  => $invoice->id,
+                'order_code'  => $orderCode,
+                'total'       => $totalAmount
+            ], 201);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Đã có lỗi xảy ra khi đặt hàng.',
+                'error'   => $e->getMessage(),
+            ], 500);
         }
-
-        $name           = $request->input('name');
-        $note           = $request->input('note');
-        $email          = $request->input('email');
-        $phone          = $request->input('phone');
-        $paymentMethod  = $request->input('paymentMethod', 1);
-        $id_order       = $this->generateOrderCode();
-        $id_user        = auth()->id();
-
-        $total = 0;
-        foreach ($products as $product) {
-            $quantity = (int) $product['quantity'] ?? 1;
-            $price = (int) $product['price'] ?? 0;
-            $total += $price * $quantity;
-        }
-
-        $invoice = Invoices::create([
-            'code'          => $this->generateOrderCode(),
-            'id_user'       => $id_user,
-            'id_order'      => $id_order,
-            'id_room'       => null,
-            'firstName'     => $firstName,
-            'lastName'      => $lastName,
-            'paymentMethod' => $paymentMethod,
-            'note'          => $note,
-            'email'         => $email,
-            'phone'         => $phone,
-            'total'         => $total,
-            'type'          => 'Product',
-        ]);
-
-        // Nếu bạn có bảng lưu chi tiết sản phẩm (order_items), có thể lưu từng sản phẩm vào đây
-        // foreach ($products as $productId => $product) {
-        //     OrderItem::create([
-        //         'invoice_id'   => $invoice->id,
-        //         'product_name' => $product['name'],
-        //         'quantity'     => $product['quantity'],
-        //         'price'        => $product['price'],
-        //         ...
-        //     ]);
-        // }
-
-        return response()->json([
-            'message'     => 'Đặt hàng thành công!',
-            'invoice_id'  => $invoice->id,
-            'id_order'    => $id_order,
-            'total'       => $total,
-            'customer'    => $firstName . ' ' . $lastName
-        ]);
     }
     public function history(Request $request)
     {
@@ -334,9 +381,17 @@ class CustomerController extends Controller
             'invoices' => $invoices
         ]);
     }
-    function generateOrderCode() {
-        $datePart = date('ymd'); // YYMMDD
-        $randomPart = strtoupper(substr(bin2hex(random_bytes(5)), 0, 8)); // 8 ký tự chữ & số ngẫu nhiên
-        return $datePart . $randomPart;
-    }
+    function generateOrderCode($type = 'room') {
+    $prefix = match ($type) {
+        'room'  => 'DP',
+        'order' => 'DH',
+        default => 'XX',
+    };
+
+    $datePart   = date('ymd');
+    $randomPart = strtoupper(substr(bin2hex(random_bytes(5)), 0, 5));
+
+    return $prefix . $datePart . $randomPart;
+}
+
 }
