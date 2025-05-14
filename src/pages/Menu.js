@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { FaCartPlus } from 'react-icons/fa';
 
 function Menu() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -40,7 +42,36 @@ function Menu() {
     );
   }
 
+  const handleAddToCart = (product) => {
+    const carts = JSON.parse(localStorage.getItem('carts')) || [];
+
+    const existingProductIndex = carts.findIndex(item => item.id === product.id);
+
+    if (existingProductIndex !== -1) {
+      carts[existingProductIndex].qty += 1;
+    } else {
+      carts.push({
+        id: product.id,
+        img: product.image || '',
+        name: product.name,
+        price: product.price,
+        qty: 1
+      });
+    }
+    localStorage.setItem('carts', JSON.stringify(carts));
+    setSuccessMessage(`Đã thêm "${product.name}" vào giỏ hàng!`);
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 2500);
+  };
+
   return (
+    <>
+      {successMessage && (
+        <div className="success-toast">
+          {successMessage}
+        </div>
+      )}
     <div>
       <div className="gdlr-page-title-wrapper">
         <div className="gdlr-page-title-overlay" />
@@ -61,12 +92,38 @@ function Menu() {
                       <div className="container center">
                         <div className="grid-container card-container">
                           {products.map((product, index) => (
-                            <div key={product.id || index} className="card">
-                              <img className="card-img" src={product.image || "https://via.placeholder.com/300x200"} alt={product.name} />
+                            <div key={product.id || index} className="card" style={{ position: "relative", paddingBottom: "50px" }}>
+                              <img
+                                className="card-img"
+                                src={product.image || "https://via.placeholder.com/300x200"}
+                                alt={product.name}
+                              />
                               <div className="card-title">{product.name}</div>
                               <div className="card-money">
-                                Giá: {product.price ? `${product.price.toLocaleString()} VNĐ` : "Liên hệ"}
+                                Giá: {product.price ? `${Number(product.price).toLocaleString('vi-VN')} VNĐ` : "Liên hệ"}
                               </div>
+
+                              <button
+                                className="add-to-cart-button"
+                                style={{
+                                  position: "absolute",
+                                  bottom: "10px",
+                                  right: "10px",
+                                  backgroundColor: "rgb(133 254 160 / 83%)",
+                                  color: "#212529",
+                                  border: "none",
+                                  borderRadius: "5px",
+                                  padding: "8px 12px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                }}
+                                onClick={() => handleAddToCart(product)}
+                              >
+                              <FaCartPlus size={16} />
+                                Thêm
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -98,6 +155,7 @@ function Menu() {
         <div className="clear" />
       </div>
     </div>
+    </>
   );
 }
 

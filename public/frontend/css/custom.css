@@ -4,16 +4,14 @@
   justify-content: center;
 }
 
-/* Đặt mỗi li chiếm 1/3 chiều rộng */
 .slides li {
-  box-sizing: border-box; /* Bao gồm padding và border trong kích thước */
+  box-sizing: border-box;
 }
 
-/* Đặt kích thước ảnh */
 .slides li img {
   width: 350px;
   height: 200px;
-  object-fit: cover; /* Giữ tỷ lệ ảnh nhưng cắt để vừa khung */
+  object-fit: cover;
 }
 .slides li h3 {
   width: 350px;
@@ -148,35 +146,6 @@ span.gdlr-tail.price{
   flex-wrap: nowrap;
 }
 
-/* CSS cho user-icon-wrapper */
-.user-icon-wrapper {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.user-icon-link {
-  text-decoration: none;
-  color: #fff;
-  font-size: 24px;
-  padding-bottom: 8px;
-}
-
-.user-icon-link:hover .user-icon {
-  color: #516375;
-}
-
-.user-icon {
-  transition: color 0.3s ease;
-}
 
 /* CSS cho button back */
 button.back-button{
@@ -451,7 +420,8 @@ span.username{
 }
 
 /* Icon người dùng */
-.user-icon {
+.user-icon,
+.order-icon{
   font-size: 20px;
   color: #d1d1d1;
 }
@@ -998,7 +968,7 @@ tbody.history-table-body td {
 }
 
 .space-x-4 {
-  gap: 16px; /* Khoảng cách giữa các phần tử */
+  gap: 16px;
 }
 
 label {
@@ -1063,3 +1033,103 @@ input[type="radio"]:not(:checked) + label {
   color: red !important;
   padding-left: 110px;
 }
+
+.success-toast {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: 90%;
+  max-width: 400px;
+  background-color: #22c55e;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  transition: opacity 0.3s ease-in-out;
+  font-size: 14px;
+  margin-top: 100px;
+}
+
+.user-icon-wrapper{
+  position: fixed;
+  top: 20px;
+  right: 70px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.user-icon-link {
+  text-decoration: none;
+  color: #fff;
+  font-size: 24px;
+  padding-bottom: 8px;
+}
+
+.user-icon-link:hover .user-icon {
+  color: #516375;
+}
+
+.user-icon {
+  transition: color 0.3s ease;
+}
+
+.order-icon-wrapper{
+  font-size: 23px !important;
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.cart-table th, .cart-table td {
+  border-bottom: 1px solid #ddd;
+  padding: 12px;
+}
+
+.cart-table th {
+  background-color: #726969;
+}
+
+.button-order {
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 15px;
+  background-color: #a4cefc;
+}
+
+.btn-action {
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-weight: bold;
+  border-radius: 50px;
+}
+
+.checkbox-order {
+  width: 18px;
+  height: 18px;
+  accent-color: #2e89ff;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.checkbox-order:hover {
+  box-shadow: 0 0 0 2px rgba(46, 137, 255, 0.3);
+}
+

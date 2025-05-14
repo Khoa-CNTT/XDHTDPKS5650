@@ -1,6 +1,7 @@
 import { Link, useNavigate , useLocation} from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
+import { FaShoppingCart } from 'react-icons/fa';
 
 function Header() {
   const navigate = useNavigate();
@@ -146,7 +147,8 @@ function Header() {
         <FaUser className="user-icon" />
       </Link>
     </div> */}
-    <div className="user-icon-wrapper">
+    <div className="icon-hearder-action">
+      <div className="user-icon-wrapper">
       {isLoggedIn ? (
         <>
           <span className="username">{user.name}</span>
@@ -178,6 +180,12 @@ function Header() {
           <FaUser className="user-icon" />
         </Link>
       )}
+      </div>
+      <div className="order-icon-wrapper">
+        <Link to="/Cart" className="order-icon-link">
+          <FaShoppingCart className="order-icon" />
+        </Link>
+      </div>
     </div>
     <df-messenger
         intent="WELCOME"
