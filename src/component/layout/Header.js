@@ -169,6 +169,11 @@ function Header() {
                       <span className="info-user">Lịch sử đặt phòng</span>
                     </Link>
                   </li>
+                  <li>
+                    <Link to="/HistoryProduct">
+                      <span className="info-user">Lịch sử đặt món</span>
+                    </Link>
+                  </li>
                   <li onClick={handleLogout}>Đăng xuất</li>
                 </ul>
               </div>

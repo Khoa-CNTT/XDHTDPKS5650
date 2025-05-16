@@ -13,7 +13,7 @@ function HistoryBook() {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/history", {
+        const response = await fetch("http://127.0.0.1:8000/api/history?type=room", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

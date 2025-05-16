@@ -20,6 +20,7 @@ import Login from './pages/client/login';
 import Register from './pages/client/register';
 import Profile from './pages/Profile';
 import HistoryBook from './pages/HistoryBook';
+import HistoryProduct from './pages/HistoryProduct';
 import Cart from './pages/Cart';
 
 document.body.classList.add('home', 'page-template-default', 'page', 'page-id-3720', '_masterslider', '_msp_version_3.2.2', 'hotelmaster-button-classic-style', 'header-style-2', 'hotelmaster-classic-style', 'hotelmaster-single-classic-style');
@@ -53,6 +54,7 @@ function App() {
               <Route path="/Menu" element={<Menu />} />
               <Route path="/Cart" element={<Cart />} />
               <Route path="/HistoryBooking" element={<HistoryBook />} />
+              <Route path="/HistoryProduct" element={<HistoryProduct />} />
               <Route path="/Profile" element={<Profile />} />
 
               {/* Trang login và register không có Header và Footer */}

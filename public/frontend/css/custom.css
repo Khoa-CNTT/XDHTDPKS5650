@@ -717,7 +717,8 @@ tbody.history-table-body td {
   vertical-align: middle;
 }
 .action-btn-detail,
-.action-btn-rate {
+.action-btn-rate, 
+.action-btn-view {
   padding: 8px 18px;
   border: none;
   outline: none;
@@ -731,11 +732,13 @@ tbody.history-table-body td {
   transition: background 0.18s;
 }
 .action-btn-detail:last-child,
-.action-btn-rate:last-child {
+.action-btn-rate:last-child,
+.action-btn-view:last-child {
   margin-right: 0;
 }
 .action-btn-detail:hover,
-.action-btn-rate:hover {
+.action-btn-rate:hover,
+.action-btn-view:hover {
   background: #1463be;
 }
 @media (max-width: 600px) {
@@ -1120,6 +1123,7 @@ input[type="radio"]:not(:checked) + label {
   border-radius: 50px;
 }
 
+/* modal */
 .checkbox-order {
   width: 18px;
   height: 18px;
@@ -1133,3 +1137,92 @@ input[type="radio"]:not(:checked) + label {
   box-shadow: 0 0 0 2px rgba(46, 137, 255, 0.3);
 }
 
+.history-table-row th {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.order-detail-modal {
+  padding: 20px;
+  background: #1c1c1c;
+  color: #fff;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.order-detail-modal {
+  width: 42.857%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: #1c1c1c;
+  padding: 20px;
+  color: white;
+  border-radius: 12px;
+}
+
+.order-item {
+  border-left: 4px solid #8d6e63;
+  background-color: #2c2c2c;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+}
+
+.item-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.item-info {
+  padding-left: 15px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.close-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: white;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-footer button {
+  background-color: white;
+  color: black;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
