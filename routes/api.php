@@ -113,6 +113,8 @@ Route::prefix('staff')->middleware('auth:sanctum')->group(function () {
     Route::get('/edit-blog/{id}',[BlogController::class,'edit']);
     Route::post('/edit-blog/{id}',[BlogController::class,'update']);
     Route::delete('/delete-blog/{id}',[BlogController::class,'destroy']);
+    Route::put('/edit-blog/{id}',[BlogController::class,'update']);
+    Route::delete('/delete-blog/{id}',[BlogController::class,'destroy']);
     // Rental room detail
     Route::post('/create-rental-detail', [RentalDetailController::class, 'store']);
 });
@@ -141,6 +143,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/price-total',[CustomerController::class,'priceTotal']);
     Route::post('/booking',[CustomerController::class,'booking']);
     Route::post('/add-to-cart', [CustomerController::class, 'AddToCart']);
+    Route::get('/detail-order', [CustomerController::class, 'detailOrder']);
     Route::post('/order-product', [CustomerController::class, 'order']);
     //Rate
     Route::post('/create-rate', [RateController::class, 'store']);

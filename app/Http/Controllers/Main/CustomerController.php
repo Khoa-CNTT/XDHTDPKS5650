@@ -372,26 +372,60 @@ class CustomerController extends Controller
     public function history(Request $request)
     {
         $userId = auth()->id();
-        $invoices = Invoices::where('id_user', $userId)
-            ->with('room.roomCategory')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $type = $request->query('type');
+
+        if ($type === 'room') {
+            $invoicesRoom = Invoices::where('id_user', 2)
+                        ->where('type', 'Room')
+                        ->with('room.roomCategory')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+            return response()->json([
+                'invoices' => $invoicesRoom
+            ]);
+        } 
+
+        if ($type === 'product') {
+            $invoicesProduct = Invoices::where('id_user', $userId)
+                        ->where('type', 'Product')
+                        ->with('room.roomCategory')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+            return response()->json([
+                'invoices' => $invoicesProduct
+            ]);
+        }
 
         return response()->json([
-            'invoices' => $invoices
+            'invoices' => null
         ]);
     }
-    function generateOrderCode($type = 'room') {
-    $prefix = match ($type) {
-        'room'  => 'DP',
-        'order' => 'DH',
-        default => 'XX',
-    };
+    public function detailOrder(Request $request){
+        $id = $request->query('id');
+        $orders = Order::where('invoice_id', $id)->get();
 
-    $datePart   = date('ymd');
-    $randomPart = strtoupper(substr(bin2hex(random_bytes(5)), 0, 5));
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'message' => 'Không tìm thấy đơn hàng.',
+                'orders' => []
+            ], 404);
+        }
 
-    return $prefix . $datePart . $randomPart;
-}
+        return response()->json([
+            'orders' => $orders
+        ]);
+    }
+    function generateOrderCode($type = 'room') 
+    {
+        $prefix = match ($type) {
+            'room'  => 'DP',
+            'order' => 'DH',
+            default => 'XX',
+        };
 
+        $datePart   = date('ymd');
+        $randomPart = strtoupper(substr(bin2hex(random_bytes(5)), 0, 5));
+
+        return $prefix . $datePart . $randomPart;
+    }
 }

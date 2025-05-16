@@ -32,12 +32,6 @@ class Invoices extends Model
         return $this->belongsTo(User::class, 'id_user');
     }
 
-
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'invoice_services', 'invoice_id', 'service_id');
-    }
-    
     public function room()
     {
         return $this->belongsTo(Room::class, 'id_room');
