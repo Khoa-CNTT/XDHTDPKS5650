@@ -9,12 +9,71 @@ function DetailBlog() {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(true);
+  const [commentError, setCommentError] = useState(null);
+
+  const [newComment, setNewComment] = useState('');
+  const [replyTo, setReplyTo] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      console.log('Đang gửi bình luận:', {
+        id_blog: id,
+        text: newComment,
+        id_parent: replyTo,
+      });
+
+      const res = await axios.post('http://127.0.0.1:8000/api/create-comment', {
+        id_blog: id,
+        text: newComment,
+        id_parent: replyTo,
+      },{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      console.log('Phản hồi từ server:', res);
+
+      setNewComment('');
+      setReplyTo(null);
+
+      const res2 = await axios.get(`http://127.0.0.1:8000/api/list-cmt?id_blog=${id}`);
+      setComments(Array.isArray(res2.data.data) ? res2.data.data : []);
+    } catch (error) {
+      console.error('Lỗi khi gửi bình luận:', error);
+
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+        setSubmitError(`Lỗi server: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error('Request đã gửi nhưng không nhận được phản hồi:', error.request);
+        setSubmitError('Không nhận được phản hồi từ server.');
+      } else {
+        console.error('Lỗi khi cấu hình request:', error.message);
+        setSubmitError(`Lỗi: ${error.message}`);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchBlogDetail = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/detail-blog/${id}`);
-        console.log('Blog data:', response.data); // Debug log
         setBlog(response.data);
         setLoading(false);
       } catch (error) {
@@ -25,6 +84,23 @@ function DetailBlog() {
     };
 
     fetchBlogDetail();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/api/list-cmt?id_blog=${id}`);
+      const commentData = Array.isArray(res.data.data) ? res.data.data : [];
+      setComments(commentData);
+    } catch (err) {
+      console.error("Lỗi lấy bình luận:", err);
+      setCommentError("Không thể tải bình luận.");
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+    fetchComments();
   }, [id]);
 
   if (loading) {
@@ -95,21 +171,16 @@ function DetailBlog() {
               <h1 className="gdlr-blog-title">{item.blog_name}</h1>
               <div className="clear" />
           </header>
-          {/* entry-header */}
           <div className="gdlr-blog-content">
           <p>{item.short_describe}</p>
           <div className="clear" />
-          {/* <div className="gdlr-space" style={{marginTop: '30px'}} />
-          <blockquote className="gdlr-align-center">Cum sociis natoque penatus etaed pnis dis parturient montes, scettr aieo ridus mus. Etiam portaem mleyo.</blockquote> */}
           <div className="clear" />
               <div className="gdlr-space" style={{marginTop: '30px'}} />
               <p>{item.detail_describe}</p>
               <div className="clear" /></div>
               </div>
-              {/* blog content wrapper */}
           </div>
         </article>
-        {/* #post */}
         <div className="gdlr-social-share gdlr-type-enable">
           <span className="social-share-title">Chia sẻ bài viết:</span>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -134,7 +205,6 @@ function DetailBlog() {
           </div>
           <div className="clear" />
           </div>
-          {/* abou author section */}
           <div className="gdlr-post-author">
           <h3 className="post-author-title">Thông tin người đăng</h3>
           <div className="post-author-avartar"><img alt="" src="https://secure.gravatar.com/avatar/666cee72aa11f8f0b5c21c690cdc7dd9?s=90&d=mm&r=g" srcSet="https://secure.gravatar.com/avatar/666cee72aa11f8f0b5c21c690cdc7dd9?s=180&d=mm&r=g 2x" className="avatar avatar-90 photo" height={90} width={90} decoding="async" style={{opacity: 1}} /></div>
@@ -143,22 +213,114 @@ function DetailBlog() {
           Một chút mô tả về tác giả.	</div>
           <div className="clear" />
           </div>
+          <div className="gdlr-comments">
+            <h3>Bình luận ({comments.length})</h3>
+            {loadingComments ? (
+              <p>Đang tải bình luận...</p>
+            ) : commentError ? (
+              <div className="alert alert-danger">{commentError}</div>
+            ) : comments.length === 0 ? (
+              <p>Chưa có bình luận nào.</p>
+            ) : (
+              <ul className="comment-list">
+                {comments
+                  .filter(comment => comment.parent === null)
+                  .map((comment) => (
+                    <li key={comment.id} style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
+                      <strong>{comment.user}</strong> <br />
+                      <small>{comment.created_at}</small>
+                      <p>{comment.text}</p>
+                      <button className="reply-cmt" onClick={() => setReplyTo(comment.id)}>
+                        Trả lời
+                      </button>
+
+                      <ul style={{ marginLeft: '20px', listStyleType: 'circle' }}>
+                        {comments
+                          .filter(c => c.parent === comment.id)
+                          .map(reply => (
+                            <li key={reply.id} style={{ marginBottom: '10px' }}>
+                              <strong>{reply.user}</strong> <br />
+                              <small>{reply.created_at}</small>
+                              <p>{reply.text}</p>
+                            </li>
+                          ))}
+                      </ul>
+                    </li>
+                  ))
+                }
+              </ul>
+            )}
+          </div>
           <div id="comments" className="gdlr-comments-area">
           <div id="respond" className="comment-respond">
-          <h3 id="reply-title" className="comment-reply-title">Bình luận về bài viết <small>
-          <a rel="nofollow" id="cancel-comment-reply-link" href="/hotelmaster/dark/2013/12/03/sedial-eiusmod-tempor/#respond" style={{display: 'none'}}>Cancel Reply</a>
-          </small>
-          </h3>
-          <form action="https://demo.goodlayers.com/hotelmaster/dark/wp-comments-post.php" method="post" id="commentform" className="comment-form"><div className="comment-form-comment"><textarea id="comment" name="comment" cols={45} rows={8} aria-required="true" defaultValue={""} /></div>
-          <div className="comment-form-head">
-          <div className="clear" /></div>
-          <p className="form-submit">
-            <input name="submit" type="submit" id="submit" className="submit" defaultValue="Gửi bình luận" /> 
-            <input type="hidden" name="comment_post_ID" defaultValue={859} id="comment_post_ID" />
-          </p>
-          </form>	
+          <div id="comments" className="gdlr-comments-area">
+            <div id="respond" className="comment-respond">
+              <h3 id="reply-title" className="comment-reply-title">
+                Bình luận về bài viết
+                <small style={{ marginLeft: 15 }}>
+                  <a
+                    rel="nofollow"
+                    id="cancel-comment-reply-link"
+                    href="#!"
+                    style={{ display: replyTo ? 'inline' : 'none' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setReplyTo(null);
+                    }}
+                  >
+                    Hủy trả lời
+                  </a>
+                </small>
+              </h3>
+              <Form
+                onSubmit={handleSubmitComment}
+                className="comment-form"
+                id="commentform"
+              >
+                <Form.Group className="comment-form-comment">
+                  <Form.Control
+                    as="textarea"
+                    id="comment"
+                    name="comment"
+                    cols={45}
+                    rows={8}
+                    aria-required="true"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    disabled={submitting}
+                    placeholder={
+                      replyTo ? 'Viết trả lời bình luận...' : 'Viết bình luận...'
+                    }
+                  />
+                </Form.Group>
+                <div className="comment-form-head">
+                  <div className="clear" />
+                </div>
+                {submitError && (
+                  <div className="alert alert-danger" style={{ marginBottom: '10px' }}>
+                    {submitError}
+                  </div>
+                )}
+                <p className="form-submit" style={{ marginTop: 15 }}>
+                  <Button
+                    type="submit"
+                    id="submit"
+                    className="submit"
+                    disabled={submitting || !newComment.trim()}
+                    variant="primary"
+                  >
+                    {submitting
+                      ? 'Đang gửi...'
+                      : replyTo
+                      ? 'Gửi trả lời'
+                      : 'Gửi bình luận'}
+                  </Button>
+                </p>
+              </Form>
+            </div>
           </div>
-          </div>{/* gdlr-comment-area */}						</div>
+          </div>
+          </div></div>
         </div>
         <div className="clear" />
         </div>
@@ -216,41 +378,40 @@ function DetailBlog() {
               <div id="recent-comments-3" className="widget widget_recent_comments gdlr-item gdlr-widget">
                 <h3 className="gdlr-widget-title">Recent Comments</h3>
                 <div className="clear" />
-                    <ul id="recentcomments">
-                      <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/magna-pars-studiorum/#comment-14">Magna pars studiorum</a></li>
-                      <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/eiusmod-tempor-incidunt/#comment-12">Eiusmod tempor incidunt</a></li>
-                      <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/eiusmod-tempor-incidunt/#comment-11">Eiusmod tempor incidunt</a></li>
-                      <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/donec-luctus-imperdiet/#comment-9">Donec luctus imperdiet</a></li>
-                      <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/11/12/nihilne-te-nocturnum/#comment-15">Nihilne te nocturnum</a></li>
-                    </ul>
-                </div>
+                  <ul id="recentcomments">
+                    <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/magna-pars-studiorum/#comment-14">Magna pars studiorum</a></li>
+                    <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/eiusmod-tempor-incidunt/#comment-12">Eiusmod tempor incidunt</a></li>
+                    <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/eiusmod-tempor-incidunt/#comment-11">Eiusmod tempor incidunt</a></li>
+                    <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/12/03/donec-luctus-imperdiet/#comment-9">Donec luctus imperdiet</a></li>
+                    <li className="recentcomments"><span className="comment-author-link">John Doe</span> on <a href="https://demo.goodlayers.com/hotelmaster/dark/2013/11/12/nihilne-te-nocturnum/#comment-15">Nihilne te nocturnum</a></li>
+                  </ul>
+              </div>
                 <div id="tag_cloud-2" className="widget widget_tag_cloud gdlr-item gdlr-widget">
                     <h3 className="gdlr-widget-title">Tag Cloud</h3>
                     <div className="clear" />
-                      <div className="tagcloud"><a href="https://demo.goodlayers.com/hotelmaster/dark/tag/animal/" className="tag-cloud-link tag-link-11 tag-link-position-1" style={{fontSize: '8pt'}} aria-label="Animal (1 item)">Animal</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/aside/" className="tag-cloud-link tag-link-12 tag-link-position-2" style={{fontSize: '8pt'}} aria-label="Aside (1 item)">Aside</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/audio/" className="tag-cloud-link tag-link-13 tag-link-position-3" style={{fontSize: '11.230769230769pt'}} aria-label="Audio (2 items)">Audio</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/blog/" className="tag-cloud-link tag-link-14 tag-link-position-4" style={{fontSize: '19.666666666667pt'}} aria-label="Blog (8 items)">Blog</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/business/" className="tag-cloud-link tag-link-15 tag-link-position-5" style={{fontSize: '15.179487179487pt'}} aria-label="Business (4 items)">Business</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/gallery-thumbnail/" className="tag-cloud-link tag-link-16 tag-link-position-6" style={{fontSize: '8pt'}} aria-label="Gallery Thumbnail (1 item)">Gallery Thumbnail</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/identity-2/" className="tag-cloud-link tag-link-17 tag-link-position-7" style={{fontSize: '13.384615384615pt'}} aria-label="identity (3 items)">identity</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/life-style/" className="tag-cloud-link tag-link-18 tag-link-position-8" style={{fontSize: '22pt'}} aria-label="Life Style (11 items)">Life Style</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/link/" className="tag-cloud-link tag-link-19 tag-link-position-9" style={{fontSize: '11.230769230769pt'}} aria-label="Link (2 items)">Link</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/news/" className="tag-cloud-link tag-link-20 tag-link-position-10" style={{fontSize: '16.615384615385pt'}} aria-label="News (5 items)">News</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/post-format/" className="tag-cloud-link tag-link-21 tag-link-position-11" style={{fontSize: '15.179487179487pt'}} aria-label="Post format (4 items)">Post format</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/quote/" className="tag-cloud-link tag-link-22 tag-link-position-12" style={{fontSize: '8pt'}} aria-label="Quote (1 item)">Quote</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/safari/" className="tag-cloud-link tag-link-23 tag-link-position-13" style={{fontSize: '8pt'}} aria-label="Safari (1 item)">Safari</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/travel/" className="tag-cloud-link tag-link-24 tag-link-position-14" style={{fontSize: '8pt'}} aria-label="Travel (1 item)">Travel</a>
-                          <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/video/" className="tag-cloud-link tag-link-25 tag-link-position-15" style={{fontSize: '8pt'}} aria-label="Video (1 item)">Video</a>
-                      </div>
+                    <div className="tagcloud"><a href="https://demo.goodlayers.com/hotelmaster/dark/tag/animal/" className="tag-cloud-link tag-link-11 tag-link-position-1" style={{fontSize: '8pt'}} aria-label="Animal (1 item)">Animal</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/aside/" className="tag-cloud-link tag-link-12 tag-link-position-2" style={{fontSize: '8pt'}} aria-label="Aside (1 item)">Aside</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/audio/" className="tag-cloud-link tag-link-13 tag-link-position-3" style={{fontSize: '11.230769230769pt'}} aria-label="Audio (2 items)">Audio</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/blog/" className="tag-cloud-link tag-link-14 tag-link-position-4" style={{fontSize: '19.666666666667pt'}} aria-label="Blog (8 items)">Blog</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/business/" className="tag-cloud-link tag-link-15 tag-link-position-5" style={{fontSize: '15.179487179487pt'}} aria-label="Business (4 items)">Business</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/gallery-thumbnail/" className="tag-cloud-link tag-link-16 tag-link-position-6" style={{fontSize: '8pt'}} aria-label="Gallery Thumbnail (1 item)">Gallery Thumbnail</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/identity-2/" className="tag-cloud-link tag-link-17 tag-link-position-7" style={{fontSize: '13.384615384615pt'}} aria-label="identity (3 items)">identity</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/life-style/" className="tag-cloud-link tag-link-18 tag-link-position-8" style={{fontSize: '22pt'}} aria-label="Life Style (11 items)">Life Style</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/link/" className="tag-cloud-link tag-link-19 tag-link-position-9" style={{fontSize: '11.230769230769pt'}} aria-label="Link (2 items)">Link</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/news/" className="tag-cloud-link tag-link-20 tag-link-position-10" style={{fontSize: '16.615384615385pt'}} aria-label="News (5 items)">News</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/post-format/" className="tag-cloud-link tag-link-21 tag-link-position-11" style={{fontSize: '15.179487179487pt'}} aria-label="Post format (4 items)">Post format</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/quote/" className="tag-cloud-link tag-link-22 tag-link-position-12" style={{fontSize: '8pt'}} aria-label="Quote (1 item)">Quote</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/safari/" className="tag-cloud-link tag-link-23 tag-link-position-13" style={{fontSize: '8pt'}} aria-label="Safari (1 item)">Safari</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/travel/" className="tag-cloud-link tag-link-24 tag-link-position-14" style={{fontSize: '8pt'}} aria-label="Travel (1 item)">Travel</a>
+                        <a href="https://demo.goodlayers.com/hotelmaster/dark/tag/video/" className="tag-cloud-link tag-link-25 tag-link-position-15" style={{fontSize: '8pt'}} aria-label="Video (1 item)">Video</a>
                     </div>
+                  </div>
                 </div>
               </div>
               <div className="clear" />
               </div>
           </div>
         </div>
-        {/* gdlr-content */}
         <div className="clear" /></div>
       ))}
     </>
