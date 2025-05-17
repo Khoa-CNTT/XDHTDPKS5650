@@ -34,7 +34,7 @@ class RateRequest extends FormRequest
                                  ->exists();
 
             if (!$hasBooked) {
-                $validator->errors()->add('id_room', 'You must book this room before rating it.');
+                $validator->errors()->add('id_room', 'Bạn phải đặt phòng trước khi đánh giá.');
             }
         });
     }

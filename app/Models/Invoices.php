@@ -25,7 +25,8 @@ class Invoices extends Model
         'paymentMethod',
         'note',
         'total',
-        'type'
+        'type',
+        'payment_status'
     ];
     public function user()
     {
@@ -35,6 +36,11 @@ class Invoices extends Model
     public function room()
     {
         return $this->belongsTo(Room::class, 'id_room');
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'invoice_services', 'invoice_id', 'service_id');
     }
 
     // public function order()

@@ -17,33 +17,36 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $comments = Comment::with(['children.children.children', 'user'])
-            ->where('id_parent', null)
-            ->latest()
-            ->get();
-
+        $comments = Comment::where("id_blog", $request->id_blog)->get();
         return CommentResource::collection($comments);
     }
     public function store(CommentRequest $request)
     {
         $data = $request->all();
 
-        // Nếu không có id_parent, set mặc định là null
         if (empty($data['id_parent'])) {
             $data['id_parent'] = null;
         }
 
-        $data['id_user'] = Auth()->id(); // Lấy id_user từ Auth
+        $data['id_user'] = auth()->id();
+
+        if (empty($data['id_blog'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Thiếu thông tin id_blog.',
+            ], 400);
+        }
 
         $comment = Comment::create($data);
 
         return response()->json([
             'status' => true,
-            'message' => 'Successfully comment!',
+            'message' => 'Bình luận thành công!',
             'data' => $comment,
         ], 201);
+
     }
 
     public function update(CommentRequest $request)

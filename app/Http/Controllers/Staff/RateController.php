@@ -25,15 +25,32 @@ class RateController extends Controller
     }
     public function store(RateRequest $request)
     {
+        $invoice = Invoices::where('id', $request->id_invoice)
+                ->where('id_user', auth()->id())
+                ->where('id_room', $request->id_room)
+                ->where('payment_status', 1)
+                ->where('check_rate', 0)
+                ->first();
+
+        if (!$invoice) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn không thể đánh giá phòng này. Có thể bạn chưa thanh toán hoặc đã đánh giá hóa đơn này rồi.',
+            ], 403);
+        }
+
         $rate = Rate::create([
-            'id_user' => Auth()->id(),
+            'id_user' => auth()->id(),
             'id_room' => $request->id_room,
             'stars' => $request->stars,
         ]);
 
+        $invoice->check_rate = 1;
+        $invoice->save();
+
         return response()->json([
             'status' => true,
-            'message' => 'Successfully rated!',
+            'message' => 'Đánh giá thành công!',
             'data' => $rate,
         ], 201);
     }

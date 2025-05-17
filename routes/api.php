@@ -133,6 +133,8 @@ Route::get('/list-product',[TransmitController::class,'listProduct']);
 Route::get('/list-blog',[TransmitController::class,'listBlog']);
 Route::get('/detail-blog/{id}',[TransmitController::class,'detailBlog']);
 
+Route::get('/list-cmt',[CommentController::class,'index']);
+
 // Main sanctum
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout',[CustomerController::class,'logout']);
