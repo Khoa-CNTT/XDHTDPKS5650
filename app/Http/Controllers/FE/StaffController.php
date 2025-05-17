@@ -50,7 +50,7 @@ class StaffController extends Controller
         $staff->name     = $data['name'];
         $staff->email    = $data['email'];
         $staff->password = bcrypt($data['password']); // Băm mật khẩu
-        $staff->phone    = $data['phone'] ?? null;
+        $staff->phone    = $data['phone'];
         $staff->address  = $data['address'] ?? null;
         $staff->avatar   = $data['avatar'] ?? null;
         $staff->level    = $data['level'];
@@ -58,7 +58,7 @@ class StaffController extends Controller
         $staff->save();
 
         return redirect()
-            ->route('staff.index')
+            ->route('staffs.index')
             ->with('success', 'Thêm nhân viên thành công!');
     }
 

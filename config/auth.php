@@ -12,7 +12,7 @@ return [
         ],
         'staff' => [
             'driver' => 'session',
-            'provider' => 'staff',
+            'provider' => 'staffs',
         ],
     ],
     'providers' => [
@@ -20,15 +20,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-        'staff' => [
+        'staffs' => [
             'driver' => 'eloquent',
             'model' => App\Models\Staff::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
     'passwords' => [
         'users' => [

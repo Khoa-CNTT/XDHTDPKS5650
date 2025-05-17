@@ -8,7 +8,7 @@
                 <i class="fas fa-plus me-1"></i> Create Staff
             </a>
         </div>
-
+        {{-- Hiển thị thông báo lỗi --}}
         {{-- Hiển thị thông báo --}}
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -21,7 +21,6 @@
         <table class="table table-bordered bg-white">
             <thead class="table-secondary">
                 <tr>
-                    <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -34,7 +33,6 @@
             <tbody>
                 @foreach ($data as $staff)
                     <tr>
-                        <td>{{ $staff->id }}</td>
                         <td>{{ $staff->name }}</td>
                         <td>{{ $staff->email }}</td>
                         <td>{{ $staff->phone }}</td>
