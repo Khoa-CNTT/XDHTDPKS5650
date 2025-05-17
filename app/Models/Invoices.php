@@ -26,7 +26,8 @@ class Invoices extends Model
         'note',
         'total',
         'type',
-        'payment_status'
+        'payment_status',
+        'check_rate'
     ];
     public function user()
     {
