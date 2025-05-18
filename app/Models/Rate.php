@@ -15,4 +15,12 @@ class Rate extends Model
         'id_room',
         'stars',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'id_room');
+    }
 }

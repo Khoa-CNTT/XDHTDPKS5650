@@ -14,9 +14,9 @@ class RoomController extends Controller
      */
     public function index()
     {
-        $data = Room::all();
-        $roomType = RoomType::all(); // hoặc RoomCategory nếu bạn dùng tên đó
-        return view('admin.Room', compact('data', 'roomType'));
+        $data = Room::with('roomCategory')->get();
+        $roomType = RoomType::all();
+        return view('admin.Room', compact('data','roomType'));
     }
 
     /**

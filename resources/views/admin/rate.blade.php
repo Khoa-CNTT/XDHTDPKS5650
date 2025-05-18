@@ -18,7 +18,6 @@
                 <th>User</th>
                 <th>Room</th>
                 <th>Stars</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -28,12 +27,6 @@
                     <td>{{ $rate->user->name ?? 'N/A' }}</td>
                     <td>{{ $rate->room->room_name ?? 'N/A' }}</td>
                     <td>{{ $rate->stars }}</td>
-                    <td>
-                        <button class="btn btn-sm btn-danger btn-delete-rate" data-bs-toggle="modal" data-bs-target="#deleteRateModal"
-                                data-id="{{ $rate->id }}">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </button>
-                    </td>
                 </tr>
             @endforeach
         </tbody>

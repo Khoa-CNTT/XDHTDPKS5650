@@ -13,18 +13,15 @@
         <thead class="table-secondary">
             <tr>
                 <th>ID</th>
-                <th>User</th>
-                <th>Room</th>
-                <th>Order</th>
-                <th>First Name</th>
-                <th>Last Name</th>
+                <th>Code</th>
+                <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Payment Method</th>
                 <th>Note</th>
                 <th>Total</th>
                 <th>Type</th>
-                <th>Status</th>
+                <th>Status payment</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -32,19 +29,27 @@
             @foreach ($invoices as $invoice)
                 <tr>
                     <td>{{ $invoice->id }}</td>
-                    <td>{{ $invoice->user->name ?? 'N/A' }}</td>
-                    <td>{{ $invoice->room->name ?? 'N/A' }}</td>
-                    <td>{{ $invoice->order->id ?? 'N/A' }}</td>
-                    <td>{{ $invoice->firstName }}</td>
-                    <td>{{ $invoice->lastName }}</td>
+                    <td>{{ $invoice->code }}</td>
+                    <td>{{ $invoice->name }}</td>
                     <td>{{ $invoice->email }}</td>
                     <td>{{ $invoice->phone }}</td>
-                    <td>{{ $invoice->paymentMethod }}</td>
-                    <td>{{ $invoice->note }}</td>
-                    <td>${{ number_format($invoice->total, 2) }}</td>
+                    <td>
+                        @if ($invoice->paymentMethod == 0)
+                            Indirect payment
+                        @elseif ($invoice->paymentMethod == 1)
+                            Direct payment
+                        @endif
+                    </td>
+                    <td>{{ $invoice->note ? $invoice->note : 'None' }}</td>
+                    <td>{{ number_format($invoice->total, 0, ',', '.') }} ₫</td>
                     <td>{{ $invoice->type }}</td>
-                    <td>{{ $invoice->status ? 'Paid' : 'Unpaid' }}</td>
-                    
+                    <td>
+                        @if($invoice->payment_status)
+                            <span class="text-success"><i class="fas fa-check"></i> Paid</span>
+                        @else
+                            <span class="text-danger"><i class="fas fa-times"></i> Unpaid</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

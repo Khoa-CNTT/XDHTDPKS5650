@@ -35,8 +35,12 @@
                     <td>{{ $room->room_name }}</td>
                     <td>${{ number_format($room->price, 2) }}</td>
                     <td>{{ $room->status ? 'Available' : 'Unavailable' }}</td>
-                    <td>{{ $room->roomType }}</td>
-                    <td>{{ $room->more_service }}</td>
+                    @foreach ($roomType as $type)
+                        @if ($room->id_room_categories == $type->id)
+                            <td>{{ $type->room_type }}</td>
+                        @endif
+                    @endforeach
+                    <td>{{ !empty($room->more_service) ? $room->more_service : 'None' }}</td>
                     <td>
                         <a href="{{route('rooms.edit',[$room->id])}}" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Edit
@@ -44,6 +48,10 @@
                         <button class="btn btn-sm btn-danger btn-delete-room" data-bs-toggle="modal" data-bs-target="#deleteRoomModal"
                             data-room="{{ json_encode($room) }}">
                             <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                        <button class="btn btn-sm btn-success btn-create-room-auto"
+                                data-room-id="{{ $room->id }}">
+                            <i class="fas fa-plus-circle"></i> Rental Detail auto
                         </button>
                     </td>
                 </tr>
@@ -78,11 +86,36 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deleteButtons = document.querySelectorAll('.btn-delete-room');
+        const buttons = document.querySelectorAll('.btn-create-room-auto');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function () {
                 const room = JSON.parse(this.getAttribute('data-room'));
                 const deleteForm = document.getElementById('deleteRoomForm');
                 deleteForm.action = `/rooms/${room.id}`;
+            });
+        });
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                const roomId = this.getAttribute('data-room-id');
+
+                fetch('http://127.0.0.1:8000/api/staff/create-rental-detail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        id_room: roomId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    toastr.success('Đã tạo phòng tự động thành công!');
+                })
+                .catch((error) => {
+                    toastr.error('Có lỗi xảy ra khi tạo phòng tự động!');
+                });
             });
         });
     });
