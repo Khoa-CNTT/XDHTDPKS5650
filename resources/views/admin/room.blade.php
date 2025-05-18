@@ -35,7 +35,7 @@
                     <td>{{ $room->room_name }}</td>
                     <td>${{ number_format($room->price, 2) }}</td>
                     <td>{{ $room->status ? 'Available' : 'Unavailable' }}</td>
-                    <td>{{ $room->roomType->room_type }}</td>
+                    <td>{{ $room->roomType }}</td>
                     <td>{{ $room->more_service }}</td>
                     <td>
                         <a href="{{route('rooms.edit',[$room->id])}}" class="btn btn-sm btn-warning">

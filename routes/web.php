@@ -54,6 +54,7 @@ Route::get('/payment', function () {
     'rooms' => Room::all(),
 ]);
 });
+
 //Rate
 //cấn id_room
 

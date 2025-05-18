@@ -44,15 +44,7 @@
                     <td>${{ number_format($invoice->total, 2) }}</td>
                     <td>{{ $invoice->type }}</td>
                     <td>{{ $invoice->status ? 'Paid' : 'Unpaid' }}</td>
-                    <td>
-                        <form action="{{ route('invoices.change') }}" method="POST" style="display: inline-block;">
-                            @csrf
-                            <input type="hidden" name="id" value="{{ $invoice->id }}">
-                            <button type="submit" class="btn btn-sm {{ $invoice->status ? 'btn-danger' : 'btn-success' }}">
-                                {{ $invoice->status ? 'Mark as Unpaid' : 'Mark as Paid' }}
-                            </button>
-                        </form>
-                    </td>
+                    
                 </tr>
             @endforeach
         </tbody>

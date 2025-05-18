@@ -21,6 +21,7 @@ use App\Http\Controllers\Main\TransmitController;
 use App\Http\Controllers\RentalDetailController;
 use App\Http\Controllers\Staff\RateController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\PaymentController;
 use Dom\Comment;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -132,6 +133,7 @@ Route::get('/list-service',[TransmitController::class,'listService']);
 Route::get('/list-product',[TransmitController::class,'listProduct']);
 Route::get('/list-blog',[TransmitController::class,'listBlog']);
 Route::get('/detail-blog/{id}',[TransmitController::class,'detailBlog']);
+    Route::get('/payment/qr/{invoice_id}', [PaymentController::class, 'showQR']);
 
 Route::get('/list-cmt',[CommentController::class,'index']);
 
