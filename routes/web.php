@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FE\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FE\BlogController;
 use App\Http\Controllers\FE\HomeController;
@@ -31,6 +32,7 @@ use App\Models\Room;
 Route::middleware(['auth:staff,web'])->group(function () {
     Route::get('/', [HomeController::class, 'index']); // Trang chủ admin
     Route::resource('staffs', StaffController::class);
+    Route::resource('users', UserController::class);
     Route::resource('categories', CateRoomController::class);
     Route::resource('rooms', RoomController::class);
     Route::resource('cateproducts', CateProductController::class);

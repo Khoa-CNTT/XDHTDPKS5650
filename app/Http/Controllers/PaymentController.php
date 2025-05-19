@@ -1,26 +1,66 @@
 <?php
 
+// app/Http/Controllers/PaymentController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\Invoices;
+use App\Notifications\InvoicePaidNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class PaymentController extends Controller
 {
-
-
     public function showQR(Request $request, $invoice_id)
     {
-        // Lấy hóa đơn theo id
         $invoice = Invoices::findOrFail($invoice_id);
 
-        $phone = '0905523175'; // Số điện thoại nhận tiền MOMO
-        $amount = $invoice->total; // Số tiền từ hóa đơn
-        $desc = 'THANH TOAN HOA DON ' . $invoice->id; // Nội dung chuyển khoản
+        $amount = $invoice->total;
+        $desc = 'THANH TOAN HOA DON ' . $invoice->code;
 
-        // Tạo link QR MOMO (dạng URL, khách quét sẽ tự động điền thông tin)
-        $qrData = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=momo://?action=pay&phone={$phone}&amount={4000}&comment={$desc}";
+        // Loại thanh toán: momo | bank
+        $type = $request->query('type', 'bank'); // ?type=momo để test MOMO
 
-        return view('payment.momo', compact('qrData', 'amount', 'desc', 'invoice'));
+        if ($type === 'momo') {
+            // Mã QR cho Momo (dạng text, MoMo hỗ trợ quét chuyển tiền)
+            $qrText = "2|99|0708133735|Hung|{$amount}|{$desc}";
+            $qrImage = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrText);
+        } else {
+            // Mã QR VietQR cho ngân hàng Techcombank (TCB), tài khoản đích
+            $accountNo = '190387442'; // Số tài khoản Techcombank
+            $accountName = 'TRAN TAN HUNG';
+            $bankCode = 'TCB';
+
+            $qrImage = "https://img.vietqr.io/image/{$bankCode}-{$accountNo}-compact.png?amount={$amount}&addInfo=" . urlencode($desc) . "&accountName=" . urlencode($accountName);
+        }
+
+        return view('payment.momo', compact('qrImage', 'amount', 'desc', 'invoice', 'type'));
     }
+    public function paymentSuccess($invoice_id)
+    {
+        $invoice = Invoices::findOrFail($invoice_id);
+
+        // Cập nhật trạng thái nếu chưa thanh toán
+        if ($invoice->payment_status == 0) {
+            $invoice->payment_status = 1;
+            $invoice->save();
+
+            // Gửi mail
+            Notification::route('mail', $invoice->email)
+                ->notify(new InvoicePaidNotification($invoice));
+        }
+
+        return view('payment.success', ['invoice' => $invoice]);
+    }
+    public function sendInvoicePaidMail($invoice_id)
+{
+    $invoice = Invoices::findOrFail($invoice_id);
+
+    if ($invoice->payment_status == 1) {
+        \Illuminate\Support\Facades\Notification::route('mail', $invoice->email)
+            ->notify(new InvoicePaidNotification($invoice));
+    }
+
+    return 'Mail sent!';
+}
 }

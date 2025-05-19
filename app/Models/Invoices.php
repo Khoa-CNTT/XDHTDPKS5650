@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\InvoicePaidNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,7 +44,16 @@ class Invoices extends Model
     {
         return $this->belongsToMany(Service::class, 'invoice_services', 'invoice_id', 'service_id');
     }
-
+    protected static function booted()
+{
+    static::updated(function ($invoice) {
+        if ($invoice->payment_status == 1 && $invoice->getOriginal('payment_status') == 0) {
+            // Gửi mail
+            \Illuminate\Support\Facades\Notification::route('mail', $invoice->email)
+                ->notify(new InvoicePaidNotification($invoice));
+        }
+    });
+}
     // public function order()
     // {
     //     return $this->belongsTo(::class, 'id_order');

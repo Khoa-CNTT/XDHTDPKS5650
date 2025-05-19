@@ -133,7 +133,9 @@ Route::get('/list-service',[TransmitController::class,'listService']);
 Route::get('/list-product',[TransmitController::class,'listProduct']);
 Route::get('/list-blog',[TransmitController::class,'listBlog']);
 Route::get('/detail-blog/{id}',[TransmitController::class,'detailBlog']);
-    Route::get('/payment/qr/{invoice_id}', [PaymentController::class, 'showQR']);
+Route::get('/payment/qr/{invoice_id}', [PaymentController::class, 'showQR'])->name('payment.qr');
+Route::get('/payment/success/{invoice_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/send-mail/{invoice_id}', [PaymentController::class, 'sendInvoicePaidMail']);
 
 Route::get('/list-cmt',[CommentController::class,'index']);
 

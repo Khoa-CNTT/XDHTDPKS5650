@@ -40,7 +40,7 @@
                 @if($user->level == 1 )
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fa-solid fa-user"></i>
+                        <i class="nav-icon fa-solid fa-user-tie"></i>
                         <p>
                             Staff
                             <i class="right fas fa-angle-left"></i>
@@ -56,6 +56,23 @@
                     </ul>
                 </li>
                 @endif
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fa-solid fa-user"></i>
+                        <p>
+                            User
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ '/users' }}" class="nav-link">
+                                <i class="fa-solid fa-circle-right nav-icon"></i>
+                                <p>User</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fa-solid fa-house"></i>
