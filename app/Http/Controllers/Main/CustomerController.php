@@ -20,6 +20,8 @@ use App\Models\Invoices;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Order;
+use App\Notifications\InvoicePaidNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -83,6 +85,7 @@ class CustomerController extends Controller
             200
         );
     }
+
     public function profile()
     {
         $user = Auth::user();
@@ -93,6 +96,7 @@ class CustomerController extends Controller
             200
         );
     }
+
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
@@ -132,11 +136,12 @@ class CustomerController extends Controller
             'user' => $user
         ]);
     }
+
     public function chooseRoom(Request $request)
     {
         $quantity  = $request->quantity;
-        $IssueDate = Carbon::parse($request->IssueDate);
-        $DueDate   = Carbon::parse($request->DueDate);
+        $IssueDate = $request->IssueDate;
+        $DueDate   = $request->DueDate;
         $adult     = $request->adult;
         $children  = $request->children;
 
@@ -157,21 +162,7 @@ class CustomerController extends Controller
                 ->get();
 
             foreach ($activeRooms as $room) {
-                $conflict = false;
-                $currentDate = $IssueDate->copy();
-
-                while ($currentDate <= $DueDate) {
-                    $isBooked = RentalDetail::where('id_room', $room->id)
-                        ->where('date', $currentDate->format('Y-m-d'))
-                        ->where('status', 0)
-                        ->exists();
-
-                    if ($isBooked) {
-                        $conflict = true;
-                        break;
-                    }
-                    $currentDate->addDay();
-                }
+                $conflict = $this->isRoomBookedInPeriod($room->id, $IssueDate, $DueDate);
 
                 if (! $conflict) {
                     $availableRooms[] = $room;
@@ -185,6 +176,7 @@ class CustomerController extends Controller
 
         return response()->json($availableRooms);
     }
+
     public function priceTotal(Request $request)
     {
         $IssueDate = Carbon::parse($request->IssueDate);
@@ -230,6 +222,7 @@ class CustomerController extends Controller
             'days' => $days,
         ]);
     }
+
     public function booking(Request $request)
     {
         $request->validate([
@@ -290,9 +283,12 @@ class CustomerController extends Controller
                 $invoice->services()->attach($moreService);
             }
             DB::commit();
+            $this->sendInvoicePaidMail($invoice->id);
             return response()->json([
-                'message' => 'Đặt phòng thành công',200
-            ]);
+                'message' => 'Đặt phòng thành công',
+                'invoice_id' => $invoice->id,
+                'invoice' => $invoice,
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -303,6 +299,7 @@ class CustomerController extends Controller
         }
         
     }
+
     public function order(Request $request)
     {
         $validated = $request->validate([
@@ -369,6 +366,7 @@ class CustomerController extends Controller
             ], 500);
         }
     }
+
     public function history(Request $request)
     {
         $userId = auth()->id();
@@ -400,7 +398,9 @@ class CustomerController extends Controller
             'invoices' => null
         ]);
     }
-    public function detailOrder(Request $request){
+
+    public function detailOrder(Request $request)
+    {
         $id = $request->query('id');
         $orders = Order::where('invoice_id', $id)->get();
 
@@ -415,6 +415,7 @@ class CustomerController extends Controller
             'orders' => $orders
         ]);
     }
+
     function generateOrderCode($type = 'room') 
     {
         $prefix = match ($type) {
@@ -427,5 +428,35 @@ class CustomerController extends Controller
         $randomPart = strtoupper(substr(bin2hex(random_bytes(5)), 0, 5));
 
         return $prefix . $datePart . $randomPart;
+    }
+
+    private function isRoomBookedInPeriod($roomId, Carbon $startDate, Carbon $endDate)
+    {
+        return RentalDetail::where('id_room', $roomId)
+            ->where('status', 0)
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->exists();
+    }
+
+    public function sendInvoicePaidMail($invoice_id)
+    {
+        if (!$invoice_id) {
+            logger()->error('Invoice ID is missing');
+            return response()->json(['error' => 'Invoice ID is required'], 400);
+        }
+
+        try {
+            $invoice = Invoices::findOrFail($invoice_id);
+            logger()->info('Đang gửi mail tới: ' . $invoice->email);
+
+            \Illuminate\Support\Facades\Notification::route('mail', $invoice->email)
+                ->notify(new InvoicePaidNotification($invoice));
+
+            logger()->info('Gửi mail thành công tới: ' . $invoice->email);
+        } catch (\Exception $e) {
+            logger()->error('Lỗi khi gửi mail: ' . $e->getMessage());
+        }
+
+        return 'Mail sent!';
     }
 }

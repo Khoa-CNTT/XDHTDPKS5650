@@ -11,23 +11,21 @@ use Illuminate\Support\Facades\Notification;
 
 class PaymentController extends Controller
 {
-    public function showQR(Request $request, $invoice_id)
+    public function showQRView(Request $request, $invoice_id)
     {
         $invoice = Invoices::findOrFail($invoice_id);
 
+        $this->sendInvoicePaidMail($invoice_id);
         $amount = $invoice->total;
         $desc = 'THANH TOAN HOA DON ' . $invoice->code;
 
-        // Loại thanh toán: momo | bank
-        $type = $request->query('type', 'bank'); // ?type=momo để test MOMO
+        $type = $request->query('type', 'bank');
 
         if ($type === 'momo') {
-            // Mã QR cho Momo (dạng text, MoMo hỗ trợ quét chuyển tiền)
-            $qrText = "2|99|0708133735|Hung|{$amount}|{$desc}";
+            $qrText = "2|99|0934895674|Thai|{$amount}|{$desc}";
             $qrImage = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrText);
         } else {
-            // Mã QR VietQR cho ngân hàng Techcombank (TCB), tài khoản đích
-            $accountNo = '190387442'; // Số tài khoản Techcombank
+            $accountNo = '190387442';
             $accountName = 'TRAN TAN HUNG';
             $bankCode = 'TCB';
 
@@ -35,6 +33,17 @@ class PaymentController extends Controller
         }
 
         return view('payment.momo', compact('qrImage', 'amount', 'desc', 'invoice', 'type'));
+    }
+    public function getQRLink(Request $request, $invoice_id)
+    {
+        $type = $request->query('type', 'bank');
+
+        // Tạo link đến view HTML
+        $link = route('qr.view', ['invoice_id' => $invoice_id, 'type' => $type]);
+
+        return response()->json([
+            'qr_page_link' => $link
+        ]);
     }
     public function paymentSuccess($invoice_id)
     {
@@ -53,14 +62,13 @@ class PaymentController extends Controller
         return view('payment.success', ['invoice' => $invoice]);
     }
     public function sendInvoicePaidMail($invoice_id)
-{
-    $invoice = Invoices::findOrFail($invoice_id);
-
-    if ($invoice->payment_status == 1) {
+    {
+        if(!$invoice_id) {
+            return response()->json(['error' => 'Invoice ID is required'], 400);
+        }
+        $invoice = Invoices::findOrFail($invoice_id);
         \Illuminate\Support\Facades\Notification::route('mail', $invoice->email)
             ->notify(new InvoicePaidNotification($invoice));
+        return 'Mail sent!';
     }
-
-    return 'Mail sent!';
-}
 }
