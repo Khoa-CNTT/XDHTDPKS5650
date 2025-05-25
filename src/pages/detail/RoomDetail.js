@@ -109,10 +109,12 @@ function RoomDetail() {
                                 <Image src={item.images?.[0] || item.room_category?.image ||  "frontend/anh/default-room.png"} fluid className="mb-4" alt={item.room_name}/>
                               </div>
                               <div className="gdlr-room-title-wrapper">
-                                <h3 className="gdlr-room-title">{item.room_category.room_type}</h3>
+                                <h3 className="gdlr-room-title force-bold">
+                                  {item.room_category.room_type}
+                                </h3>
                                 <div className="gdlr-room-price">
                                   <span className="gdlr-head">Giá chỉ từ </span>
-                                  <span className="gdlr-tail price"> {item.price} VNĐ / Đêm</span>
+                                  <span className="gdlr-tail price">{item.price ? `${item.price.toLocaleString()} VNĐ / Đêm` : "Liên hệ"}</span>
                                 </div>											
                                 <div className="clear" />
                               </div>

@@ -27,7 +27,6 @@ function HistoryBook() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setInvoices(data.invoices || []);
         } else {
           const errorText = await response.text();

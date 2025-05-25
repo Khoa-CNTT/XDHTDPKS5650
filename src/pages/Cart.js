@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { FaTrash } from "react-icons/fa";
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -53,7 +55,11 @@ function Cart() {
     );
 
     if (orderedItems.length === 0) {
-      alert("Vui lòng chọn sản phẩm để đặt.");
+      Swal.fire({
+        icon: "warning",
+        title: "Chưa chọn sản phẩm",
+        text: "Vui lòng chọn ít nhất một sản phẩm để đặt hàng.",
+      });
       return;
     }
 
@@ -78,21 +84,75 @@ function Cart() {
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        alert("Lỗi đặt hàng: " + error);
+        const errorData = await response.json();
+        console.error("Order error:", errorData);
+
+        if (errorData.message === "Error login!") {
+          Swal.fire({
+            icon: "error",
+            title: "Chưa đăng nhập",
+            text: "Vui lòng đăng nhập để tiếp tục đặt hàng.",
+          });
+        } else if (response.status === 422) {
+          Swal.fire({
+            icon: "error",
+            title: "Dữ liệu không hợp lệ",
+            text: "Vui lòng kiểm tra lại sản phẩm hoặc số lượng.",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi đặt hàng",
+            text: errorData.message || "Đã xảy ra lỗi không xác định.",
+          });
+        }
         return;
       }
 
-      alert("Đặt thành công!");
+      Swal.fire({
+        icon: "success",
+        title: "Đặt hàng thành công!",
+        text: "Cảm ơn bạn đã mua hàng.",
+      });
+
       const remaining = cartItems.filter(
         (item) => !selectedItems.includes(item.id)
       );
       setCartItems(remaining);
       setSelectedItems([]);
 
+      localStorage.setItem("carts", JSON.stringify(remaining));
     } catch (error) {
-      alert("Lỗi mạng khi đặt hàng: " + error.message);
+      console.error("Network error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi kết nối",
+        text: "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.",
+      });
     }
+  };
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Bạn có muốn xoá sản phẩm này không?",
+      text: "Thao tác này không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedItems = cartItems.filter((item) => item.id !== id);
+        setCartItems(updatedItems);
+        setSelectedItems((prev) => prev.filter((i) => i !== id));
+        localStorage.setItem("carts", JSON.stringify(updatedItems));
+        Swal.fire({
+          icon: "success",
+          title: "Đã xoá",
+          text: "Sản phẩm đã được xoá khỏi giỏ hàng.",
+        });
+      }
+    });
   };
 
   return (
@@ -119,6 +179,7 @@ function Cart() {
                   <th>Giá</th>
                   <th>Số lượng</th>
                   <th>Tổng</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,6 +204,15 @@ function Cart() {
                       <button className="btn-action" onClick={() => updateQty(item.id, 1)}>+</button>
                     </td>
                     <td>{(item.qty * parseInt(item.price)).toLocaleString()}đ</td>
+                    <td>
+                      <button
+                        className="btn-action"
+                        onClick={() => handleDelete(item.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#d33", fontSize: "18px",}}
+                        title="Xoá sản phẩm"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

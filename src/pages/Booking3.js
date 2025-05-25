@@ -127,6 +127,7 @@ function Booking3() {
                               dateFormat="dd/MM/yyyy"
                               minDate={new Date()}
                               className="gdlr-datepicker"
+                              disabled
                             />
                           </div>
                         </div>
@@ -143,6 +144,7 @@ function Booking3() {
                               dateFormat="dd/MM/yyyy"
                               minDate={checkInDate}
                               className="gdlr-datepicker"
+                              disabled
                             />
                           </div>
                         </div>

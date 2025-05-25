@@ -51,6 +51,20 @@ body, h1, h2, h3, h4, h5, h6, p, a {
 .msp-cn-1-8 { font-family:"Open Sans";font-weight:300;font-size:38px;letter-spacing:2px;line-height:normal;color:#ffffff; } 
 .msp-cn-1-9 { font-family:"Merriweather";font-weight:normal;font-size:15px;letter-spacing:1px;line-height:25px;color:#bdbdbd; } 
 
+.force-bold {
+  font-weight: bold !important;
+  color: #b89f80 !important;
+}
+
+.swal2-title {
+  visibility: visible !important;
+  color: inherit !important;
+}
+
+.react-datepicker__month-container{
+  margin-left: 30px !important;
+}
+
 /* custom room */
 .gdlr-room-title a{
   text-decoration: none;

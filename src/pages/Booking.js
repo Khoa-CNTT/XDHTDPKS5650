@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Booking() {
   const [checkInDate, setCheckInDate] = useState(new Date());
@@ -12,6 +13,88 @@ function Booking() {
   const [children, setChildren] = useState(0)
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (checkOutDate > checkInDate) {
+      const diffTime = Math.abs(checkOutDate - checkInDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setNights(diffDays);
+    } else {
+      setNights(1);
+    }
+  }, [checkInDate, checkOutDate]);
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     navigate("/Login");
+  //     return;
+  //   }
+
+  //   const formData = {
+  //     IssueDate: checkInDate.toISOString().split("T")[0],
+  //     DueDate: checkOutDate.toISOString().split("T")[0],
+  //     quantity: rooms,
+  //     adult: adults,
+  //     children: children,
+  //   };
+
+  //   if(formData.IssueDate > formData.DueDate) {
+  //     alert("Thời gian vào không thể lớn hơn thời gian ra");
+  //     return;
+  //   }
+
+  //   if (formData.IssueDate === formData.DueDate) {
+  //     alert("Vui lòng chọn thời gian ra lớn hơn thời gian vào");
+  //     return;
+  //   }
+
+  //   if (localStorage.getItem("bookingInfo")) {
+  //     localStorage.removeItem("bookingInfo");
+  //   }
+    
+  //   if (localStorage.getItem("rooms")) {
+  //     localStorage.removeItem("rooms");
+  //   }
+        
+  //   try {
+  //     const res = await fetch("http://127.0.0.1:8000/api/choose-room", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(formData),
+  //     });
+
+  //     if (res.ok) {
+  //       const responseData = await res.json()
+  //       localStorage.setItem("bookingInfo", JSON.stringify(formData));
+  //       localStorage.setItem("rooms", JSON.stringify(responseData));
+  //       navigate("/Booking/Choose-room");
+  //     } else {
+  //       const errorData = await res.json();
+  //       console.error("Lỗi khi gửi yêu cầu:", errorData);
+  //       alert(errorData.message || "Đã xảy ra lỗi. Vui lòng thử lại.");
+  //     }
+  //   } catch (err) {
+  //     console.error("Lỗi mạng:", err);
+  //     alert("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
+  //   }
+  // };
+
+  const ReadOnlyInput = React.forwardRef(({ value, onClick }, ref) => (
+    <input
+      className="gdlr-datepicker"
+      onClick={onClick}
+      value={value}
+      ref={ref}
+      readOnly
+    />
+  ));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,24 +113,32 @@ function Booking() {
       children: children,
     };
 
-    if(formData.IssueDate > formData.DueDate) {
-      alert("Thời gian vào không thể lớn hơn thời gian ra");
+    if (formData.IssueDate > formData.DueDate) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Thời gian vào không thể lớn hơn thời gian ra',
+      });
       return;
     }
 
     if (formData.IssueDate === formData.DueDate) {
-      alert("Vui lòng chọn thời gian ra lớn hơn thời gian vào");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Chú ý',
+        text: 'Vui lòng chọn thời gian ra lớn hơn thời gian vào',
+      });
       return;
     }
 
     if (localStorage.getItem("bookingInfo")) {
       localStorage.removeItem("bookingInfo");
     }
-    
+
     if (localStorage.getItem("rooms")) {
       localStorage.removeItem("rooms");
     }
-        
+
     try {
       const res = await fetch("http://127.0.0.1:8000/api/choose-room", {
         method: "POST",
@@ -59,18 +150,26 @@ function Booking() {
       });
 
       if (res.ok) {
-        const responseData = await res.json()
+        const responseData = await res.json();
         localStorage.setItem("bookingInfo", JSON.stringify(formData));
         localStorage.setItem("rooms", JSON.stringify(responseData));
         navigate("/Booking/Choose-room");
       } else {
         const errorData = await res.json();
         console.error("Lỗi khi gửi yêu cầu:", errorData);
-        alert(errorData.message || "Đã xảy ra lỗi. Vui lòng thử lại.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: errorData.message || 'Đã xảy ra lỗi. Vui lòng thử lại.',
+        });
       }
     } catch (err) {
       console.error("Lỗi mạng:", err);
-      alert("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
+      await Swal.fire({
+        icon: 'error',
+        title: 'Lỗi kết nối',
+        text: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.',
+      });
     }
   };
 
@@ -105,6 +204,7 @@ function Booking() {
                               dateFormat="dd/MM/yyyy"
                               minDate={new Date()}
                               className="gdlr-datepicker"
+                              customInput={<ReadOnlyInput />}
                             />
                           </div>
                         </div>
@@ -117,7 +217,6 @@ function Booking() {
                               name="gdlr-night"
                               id="gdlr-night"
                               value={nights}
-                              onChange={(e) => setNights(Number(e.target.value))}
                               disabled
                             >
                               {[...Array(10).keys()].map((i) => (
@@ -139,6 +238,7 @@ function Booking() {
                               dateFormat="dd/MM/yyyy"
                               minDate={checkInDate}
                               className="gdlr-datepicker"
+                              customInput={<ReadOnlyInput />}
                             />
                           </div>
                         </div>

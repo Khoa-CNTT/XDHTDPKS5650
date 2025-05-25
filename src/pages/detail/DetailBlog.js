@@ -3,6 +3,7 @@ import { Container, Row, Col, Image, Button, Form, Card } from 'react-bootstrap'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 function DetailBlog() {
   const { id } = useParams();
@@ -19,12 +20,63 @@ function DetailBlog() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
+  // const handleSubmitComment = async (e) => {
+  //   e.preventDefault();
+  //   if (!newComment.trim()) return;
+
+  //   setSubmitting(true);
+  //   setSubmitError(null);
+
+  //   try {
+  //     console.log('Đang gửi bình luận:', {
+  //       id_blog: id,
+  //       text: newComment,
+  //       id_parent: replyTo,
+  //     });
+
+  //     const res = await axios.post('http://127.0.0.1:8000/api/create-comment', {
+  //       id_blog: id,
+  //       text: newComment,
+  //       id_parent: replyTo,
+  //     },{
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       }
+  //     });
+
+  //     console.log('Phản hồi từ server:', res);
+
+  //     setNewComment('');
+  //     setReplyTo(null);
+
+  //     const res2 = await axios.get(`http://127.0.0.1:8000/api/list-cmt?id_blog=${id}`);
+  //     setComments(Array.isArray(res2.data.data) ? res2.data.data : []);
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi bình luận:', error);
+
+  //     if (error.response) {
+  //       console.error('Response data:', error.response.data);
+  //       console.error('Response status:', error.response.status);
+  //       console.error('Response headers:', error.response.headers);
+  //       setSubmitError(`Lỗi server: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+  //     } else if (error.request) {
+  //       console.error('Request đã gửi nhưng không nhận được phản hồi:', error.request);
+  //       setSubmitError('Không nhận được phản hồi từ server.');
+  //     } else {
+  //       console.error('Lỗi khi cấu hình request:', error.message);
+  //       setSubmitError(`Lỗi: ${error.message}`);
+  //     }
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     setSubmitting(true);
-    setSubmitError(null);
+    // setSubmitError(null);  <-- không cần nữa
 
     try {
       console.log('Đang gửi bình luận:', {
@@ -53,18 +105,29 @@ function DetailBlog() {
     } catch (error) {
       console.error('Lỗi khi gửi bình luận:', error);
 
+      let message = 'Đã xảy ra lỗi';
+
       if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-        console.error('Response headers:', error.response.headers);
-        setSubmitError(`Lỗi server: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+        if (
+          error.response.status === 404 &&
+          error.response.data.message === "Error login!"
+        ) {
+          message = "Không thể bình luận. Vui lòng đăng nhập!!!";
+        } else {
+          message = `Lỗi server: ${error.response.status} - ${JSON.stringify(error.response.data)}`;
+        }
       } else if (error.request) {
-        console.error('Request đã gửi nhưng không nhận được phản hồi:', error.request);
-        setSubmitError('Không nhận được phản hồi từ server.');
+        message = 'Không nhận được phản hồi từ server.';
       } else {
-        console.error('Lỗi khi cấu hình request:', error.message);
-        setSubmitError(`Lỗi: ${error.message}`);
+        message = `Lỗi: ${error.message}`;
       }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi khi gửi bình luận',
+        text: message,
+      });
+
     } finally {
       setSubmitting(false);
     }
@@ -296,11 +359,11 @@ function DetailBlog() {
                 <div className="comment-form-head">
                   <div className="clear" />
                 </div>
-                {submitError && (
+                {/* {submitError && (
                   <div className="alert alert-danger" style={{ marginBottom: '10px' }}>
                     {submitError}
                   </div>
-                )}
+                )} */}
                 <p className="form-submit" style={{ marginTop: 15 }}>
                   <Button
                     type="submit"
