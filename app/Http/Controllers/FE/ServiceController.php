@@ -34,14 +34,19 @@ class ServiceController extends Controller
         $data   =    $request->validate(
             [
                 'service_name' => 'required|string|max:255',
+                'price' => 'required|integer|min:0',
             ],
             [
                 'service_name.max' => 'Tên dịch vụ không được vượt quá 255 ký tự',
+                'price.required' => 'Giá dịch vụ là bắt buộc',
+                'price.integer' => 'Giá dịch vụ phải là một số nguyên',
+                'price.min' => 'Giá dịch vụ phải lớn hơn hoặc bằng 0',
             ]
         );
         // Tạo mới một đối tượng Blog
         $service = new Service();
         $service->service_name = $data['service_name'];
+        $service->price = $data['price'];
         // Lưu blog vào cơ sở dữ liệu
         $service->save();
 
@@ -77,12 +82,17 @@ class ServiceController extends Controller
         $data = $request->validate(
             [
                 'service_name' => 'required|string|max:255',
+                'price' => 'required|integer|min:0',
             ],
             [
                 'service_name.max' => 'Tên dịch vụ không được vượt quá 255 ký tự',
+                'price.required' => 'Giá dịch vụ là bắt buộc',
+                'price.integer' => 'Giá dịch vụ phải là một số nguyên',
+                'price.min' => 'Giá dịch vụ phải lớn hơn hoặc bằng 0',
             ]
         );
         $service->service_name = $data['service_name'];
+        $service->price = $data['price'];
         // Lưu blog vào cơ sở dữ liệu
         $service->save();
         return redirect()->route('services.index')->with('success', 'Cập nhật dịch vụ thành công!');

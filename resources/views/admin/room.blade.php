@@ -33,7 +33,7 @@
                 <tr>
                     <td>{{ $room->id }}</td>
                     <td>{{ $room->room_name }}</td>
-                    <td>${{ number_format($room->price, 2) }}</td>
+                    <td>{{ number_format($room->price, 0, ',', '.') }} VNĐ</td>
                     <td>{{ $room->status ? 'Available' : 'Unavailable' }}</td>
                     @foreach ($roomType as $type)
                         @if ($room->id_room_categories == $type->id)

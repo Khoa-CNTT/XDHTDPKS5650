@@ -21,6 +21,7 @@
             <tr>
                 <th>ID</th>
                 <th>Service Name</th>
+                <th>Price</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -29,6 +30,7 @@
                 <tr>
                     <td>{{ $service->id }}</td>
                     <td>{{ $service->service_name }}</td>
+                    <td>{{ number_format($service->price, 0, ',', '.') }}</td>
                     <td>
                         <a href="{{ route('services.edit', [$service->id]) }}" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Edit

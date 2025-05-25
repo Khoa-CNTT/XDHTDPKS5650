@@ -66,6 +66,7 @@
             </div>
         </footer>
     </div>
+    @yield('scripts')
     <!-- ./wrapper -->
     <!-- jQuery -->
     <script src="{{ asset('upload/plugins/jquery/jquery.min.js') }}"></script>

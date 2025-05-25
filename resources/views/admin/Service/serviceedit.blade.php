@@ -23,6 +23,11 @@
                 <input type="text" id="service_name" name="service_name" class="form-control" value="{{ $service->service_name }}" required>
             </div>
 
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="text" id="price" name="price" class="form-control" value="{{ (int)$service->price }}" required>
+            </div>
+
             <button type="submit" class="btn btn-warning">Update</button>
         </form>
     </div>

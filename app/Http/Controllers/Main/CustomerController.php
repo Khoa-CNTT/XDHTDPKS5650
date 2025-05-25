@@ -140,8 +140,10 @@ class CustomerController extends Controller
     public function chooseRoom(Request $request)
     {
         $quantity  = $request->quantity;
-        $IssueDate = $request->IssueDate;
-        $DueDate   = $request->DueDate;
+        $IssueDate = Carbon::parse($request->IssueDate);
+        $DueDate   = Carbon::parse($request->DueDate);
+        $receive   = $IssueDate->format('Y/m/d');
+        $back      = $DueDate->format('Y/m/d');
         $adult     = $request->adult;
         $children  = $request->children;
 
@@ -165,10 +167,16 @@ class CustomerController extends Controller
                 $conflict = $this->isRoomBookedInPeriod($room->id, $IssueDate, $DueDate);
 
                 if (! $conflict) {
-                    $availableRooms[] = $room;
+                    // Check thêm từ bảng RentalDetail
+                    $allAvailable = $this->checkRoomAvailabilityInDetails($room->id, $IssueDate, $DueDate);
+
+                    if ($allAvailable) {
+                        $availableRooms[] = $room;
+                    }
                 }
             }
         }
+        return response()->json($availableRooms);
 
         if (count($availableRooms) < $quantity) {
             return response()->json(['message' => 'Không đủ phòng trống cho yêu cầu'], 400);
@@ -297,7 +305,6 @@ class CustomerController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-        
     }
 
     public function order(Request $request)
@@ -373,7 +380,7 @@ class CustomerController extends Controller
         $type = $request->query('type');
 
         if ($type === 'room') {
-            $invoicesRoom = Invoices::where('id_user', 2)
+            $invoicesRoom = Invoices::where('id_user', $userId)
                         ->where('type', 'Room')
                         ->with('room.roomCategory')
                         ->orderBy('created_at', 'desc')
@@ -458,5 +465,37 @@ class CustomerController extends Controller
         }
 
         return 'Mail sent!';
+    }
+
+    protected function checkRoomAvailabilityInDetails($roomId, $startDate, $endDate)
+    {
+        $dates = [];
+        for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
+            $dates[] = $date->format('Y-m-d'); // ✅ sửa tại đây
+        }
+
+        logger()->info('dates: ' . json_encode($dates));
+        logger()->info('Checking availability for room ID: ' . $roomId);
+
+        $details = RentalDetail::where('id_room', $roomId)
+            ->whereIn('date', $dates)
+            ->get()
+            ->keyBy('date');
+
+        logger()->info('RentalDetails: ' . json_encode($details->toArray()));
+
+        foreach ($dates as $d) {
+            if (!isset($details[$d])) {
+                logger()->warning("Thiếu ngày $d cho phòng $roomId");
+                return false;
+            }
+            if ($details[$d]->status != 1) {
+                logger()->warning("Ngày $d của phòng $roomId không còn trống (status = " . $details[$d]->status . ")");
+                return false;
+            }
+        }
+
+        logger()->info('Room ID ' . $roomId . ' is available for the selected dates.');
+        return true;
     }
 }

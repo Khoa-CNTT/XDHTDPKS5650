@@ -40,13 +40,34 @@ class RoomController extends Controller
                 'status'             => 'required|boolean',
                 'id_room_categories' => 'required|exists:room_categories,id',
                 'more_service'       => 'nullable|string|max:500',
+                'upload_images.*'    => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+                'image_links.*'      => 'nullable|url',
             ],
             [
-                'room_name.unique'            => 'Tên phòng đã tồn tại.',
-                'price.min'                   => 'Giá phải tối thiểu 100.',
-                'more_service.max'            => 'Dịch vụ thêm không được vượt quá 500 ký tự.',
+                'room_name.unique' => 'Tên phòng đã tồn tại.',
+                'price.min'        => 'Giá phải tối thiểu 100.',
+                'more_service.max' => 'Dịch vụ thêm không được vượt quá 500 ký tự.',
             ]
         );
+
+        $imagePaths = [];
+
+        // Xử lý ảnh upload từ máy
+        if ($request->hasFile('upload_images')) {
+            foreach ($request->file('upload_images') as $image) {
+                $path = $image->store('uploads/rooms', 'public');
+                $imagePaths[] = $path;
+            }
+        }
+
+        // Xử lý link ảnh nhập thủ công
+        if ($request->filled('image_links')) {
+            foreach ($request->image_links as $link) {
+                if (!empty($link)) {
+                    $imagePaths[] = $link;
+                }
+            }
+        }
 
         $room = new \App\Models\Room();
         $room->room_name          = $data['room_name'];
@@ -54,6 +75,7 @@ class RoomController extends Controller
         $room->status             = $data['status'];
         $room->id_room_categories = $data['id_room_categories'];
         $room->more_service       = $data['more_service'] ?? null;
+        $room->images             = $imagePaths;
 
         $room->save();
 
@@ -75,11 +97,11 @@ class RoomController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-{
-    $room = Room::findOrFail($id);
-    $roomType = RoomType::all(); // Nếu bạn cần danh sách loại phòng
-    return view('admin.Room.roomedit', compact('room', 'roomType'));
-}
+    {
+        $room = Room::findOrFail($id);
+        $roomType = RoomType::all();
+        return view('admin.Room.roomedit', compact('room', 'roomType'));
+    }
 
 
     /**
@@ -94,20 +116,64 @@ class RoomController extends Controller
                 'status'             => 'required|boolean',
                 'id_room_categories' => 'required|exists:room_categories,id',
                 'more_service'       => 'nullable|string|max:500',
+                'upload_images.*'    => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+                'image_links.*'      => 'nullable|url',
+                'remove_images'      => 'nullable|array',
+                'remove_images.*'    => 'string',
             ],
             [
                 'room_name.unique'            => 'Tên phòng đã tồn tại.',
                 'price.min'                   => 'Giá phải tối thiểu 100.',
                 'more_service.max'            => 'Dịch vụ thêm không được vượt quá 500 ký tự.',
+                'upload_images.*.image'       => 'File tải lên phải là ảnh.',
+                'upload_images.*.mimes'       => 'Ảnh phải có định dạng jpg, jpeg, png, gif.',
+                'upload_images.*.max'         => 'Kích thước ảnh tối đa 2MB.',
+                'image_links.*.url'           => 'Đường dẫn ảnh không hợp lệ.',
             ]
         );
 
         $room = Room::findOrFail($id);
+
+        // Lấy danh sách ảnh cũ (mảng) từ database
+        $oldImages = is_string($room->images) ? json_decode($room->images, true) : (array)$room->images;
+
+        // Lấy mảng ảnh cần xóa (checkbox)
+        $removeImages = $request->input('remove_images', []);
+
+        // Lọc ảnh cũ, loại bỏ ảnh bị đánh dấu xóa
+        $filteredOldImages = array_filter($oldImages, function($img) use ($removeImages) {
+            return !in_array($img, $removeImages);
+        });
+
+        // Bắt đầu mảng ảnh cuối cùng với ảnh cũ còn lại
+        $finalImages = $filteredOldImages;
+
+        // Xử lý upload ảnh mới nếu có
+        if ($request->hasFile('upload_images')) {
+            foreach ($request->file('upload_images') as $image) {
+                $path = $image->store('uploads/rooms', 'public');
+                $finalImages[] = asset('storage/' . $path);  // Tạo URL ảnh lưu
+            }
+        }
+
+        // Thêm các link ảnh nhập thủ công (nếu có)
+        if ($request->filled('image_links')) {
+            foreach ($request->input('image_links') as $link) {
+                $link = trim($link);
+                if (!empty($link)) {
+                    $finalImages[] = $link;
+                }
+            }
+        }
+
+        // Cập nhật các trường khác
         $room->room_name          = $data['room_name'];
         $room->price              = $data['price'];
         $room->status             = $data['status'];
         $room->id_room_categories = $data['id_room_categories'];
         $room->more_service       = $data['more_service'] ?? null;
+
+        $room->images             = $finalImages;
 
         $room->save();
 

@@ -33,10 +33,22 @@
             </div>
 
             <div class="mb-3">
-                <label for="price" class="form-label">Price</label>
+                <label for="price" class="form-label">Price (VNĐ)</label>
                 <input type="number" id="price" name="price" class="form-control" placeholder="Enter price" required>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Room Images</label>
+
+                {{-- Option 1: Upload ảnh từ máy --}}
+                <input type="file" name="upload_images[]" class="form-control mb-2" multiple>
+
+                {{-- Option 2: Nhập link ảnh thủ công --}}
+                <div id="image-links-container">
+                    <input type="text" name="image_links[]" class="form-control mb-2" placeholder="Enter image URL">
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addImageLink()">+ Add Image Link</button>
+            </div>
             <div class="mb-3">
                 <label for="status" class="form-label">Status</label>
                 <select id="status" name="status" class="form-select" required>
@@ -48,4 +60,17 @@
             <button type="submit" class="btn btn-primary">Save</button>
         </form>
     </div>
+@endsection
+@section('scripts')
+<script>
+    function addImageLink() {
+        const container = document.getElementById('image-links-container');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'image_links[]';
+        input.className = 'form-control mb-2';
+        input.placeholder = 'Enter image URL';
+        container.appendChild(input);
+    }
+</script>
 @endsection

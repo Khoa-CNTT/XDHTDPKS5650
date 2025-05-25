@@ -14,7 +14,7 @@
         </div>
         @endif
 
-        <form action="{{ route('rooms.update', [$room->id]) }}" method="POST">
+        <form action="{{ route('rooms.update', [$room->id]) }}" method="POST" enctype="multipart/form-data">
             @method('PUT')
             @csrf
 
@@ -32,7 +32,6 @@
                         </option>
                     @endforeach
                 </select>
-
             </div>
 
             <div class="mb-3">
@@ -48,7 +47,55 @@
                 </select>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Current Images</label>
+                <div>
+                    @php
+                        $images = [];
+                        if (is_string($room->images)) {
+                            $images = json_decode($room->images, true) ?: [];
+                        } elseif (is_array($room->images)) {
+                            $images = $room->images;
+                        }
+                    @endphp
+
+                    @foreach ($images as $index => $img)
+                        <div style="display: inline-block; position: relative; margin-right: 10px; margin-bottom: 10px;">
+                            <img src="{{ $img }}" alt="Room Image" style="max-width: 150px; display: block;">
+                            <label style="display: block; text-align: center;">
+                                <input type="checkbox" name="remove_images[]" value="{{ $img }}">
+                                Delete
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Room Images</label>
+
+                <input type="file" name="upload_images[]" class="form-control mb-2" multiple>
+
+                <div id="image-links-container">
+                    <input type="text" name="image_links[]" class="form-control mb-2" placeholder="Enter image URL">
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addImageLink()">+ Add Image Link</button>
+            </div>
+
             <button type="submit" class="btn btn-warning">Update</button>
         </form>
     </div>
+@endsection
+@section('scripts')
+<script>
+    function addImageLink() {
+        const container = document.getElementById('image-links-container');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'image_links[]';
+        input.className = 'form-control mb-2';
+        input.placeholder = 'Enter image URL';
+        container.appendChild(input);
+    }
+</script>
 @endsection
